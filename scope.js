@@ -52,15 +52,11 @@ var dialogComponent = {
 			}
 			el.hide = function(){ el.style.display="none"}
 
-			// if(!el.eventListeners) el.eventListeners = []
-			
-			if(!el.hasAttribute("data-onhide")){ // && el.eventListeners.indexOf("hide") == -1 ){
+			if(!el.hasAttribute("data-onhide")){ 
 				el.addEventListener("hide",function(){window[el.id].hide()})
-				//el.eventListeners.push("hide")
 			}
-			if(!el.hasAttribute("data-onclose")){// && el.eventListeners.indexOf("close") == -1 ){
+			if(!el.hasAttribute("data-onclose")){
 				el.addEventListener("close",function(){window[el.id].hide()})
-				//el.eventListeners.push("close")
 			}
 	}
 }
@@ -189,6 +185,14 @@ var scopeTemplate = {
 	hide: (el)=>{
 		return function(){ this.style.display = "none"; return this }
 	},
+	broadcast: (el)=>{
+		return function(message,details){
+			;[].forEach.call(document.body.querySelectorAll("data-on"+message), (child)=>{
+				child.dispatchEvent(new CustomEvent(message,{details:details}))
+			})
+			return this
+		}
+	},
 	
 	//----- Inits ------
 	initService: (el,$parent)=>{
@@ -199,11 +203,12 @@ var scopeTemplate = {
 			
 			el.addedEventListeners = []
 			
-			el.reload  = scopeTemplate.reload(el)
-			el.refresh = scopeTemplate.reload(el)
-			el.show    = scopeTemplate.show(el)
-			el.hide    = scopeTemplate.hide(el)
-			el.setData = scopeTemplate.setData(el)
+			el.reload    = scopeTemplate.reload(el)
+			el.refresh   = scopeTemplate.reload(el)
+			el.show      = scopeTemplate.show(el)
+			el.hide      = scopeTemplate.hide(el)
+			el.setData   = scopeTemplate.setData(el)
+			el.broadcast = scopeTemplate.broadCast(el)
 	},
 	initIf: (el)=>{
 			/*** 
