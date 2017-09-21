@@ -233,7 +233,7 @@ var scopeTemplate = {
 					var node = document.createElement("style")
 					el.templateStyle.replace(/[\n\t]/g," ").split("}").forEach( line => {
 						var [k,s] = line.split("{")
-						if(k && s) node.innerHTML += `#${el.id} ${k}{${s}}\n`
+						if(k && s) node.innerHTML += scopeTemplate.htmlDecode(`#${el.id} ${k}{${s}}\n`)
 					})
 					document.head.appendChild(node)
 				}
