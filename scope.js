@@ -104,6 +104,7 @@ var formComponent = {
 		Properties: data-COMPONENT, [data-temaplate, data-url, data-json, data-on*]
 		Variables: $data, $parent, [$i, $row] 
 		Service EVENTS: render / data-onrender -> after any element is rendered
+		Functions: refresh, reload, setData, show, hide, broadcast
 	**/
 var scopeTemplate = {
 	selector: "[-COMPONENT],[--TEMPLATE--],[__TEMPLATE__]",
@@ -208,7 +209,7 @@ var scopeTemplate = {
 			el.show      = scopeTemplate.show(el)
 			el.hide      = scopeTemplate.hide(el)
 			el.setData   = scopeTemplate.setData(el)
-			el.broadcast = scopeTemplate.broadCast(el)
+			el.broadcast = scopeTemplate.broadcast(el)
 	},
 	initIf: (el)=>{
 			/*** 
