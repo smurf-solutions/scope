@@ -179,8 +179,8 @@ var scopeTemplate = {
 			this.style.display = "block"
 			if(data){ 
 				var form = this.querySelector("form"); if(form) form.reset() 
-				return this
-			} else return this.setData(data)
+				return this.setData(data)
+			} else return this
 		}
 	},
 	hide: (el)=>{
