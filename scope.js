@@ -177,8 +177,10 @@ var scopeTemplate = {
 	show: (el)=>{
 		return function(data){
 			this.style.display = "block"
-			if(data){ var form = this.querySelector("form"); if(form) form.reset() }
-			return this.setData(data)
+			if(data){ 
+				var form = this.querySelector("form"); if(form) form.reset() 
+				return this
+			} else return this.setData(data)
 		}
 	},
 	hide: (el)=>{
