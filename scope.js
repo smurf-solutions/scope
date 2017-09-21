@@ -468,6 +468,7 @@ var scopeTemplate = {
 	}
 }
 
+window.addedEventListeners = {}
 window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg) : console.log(e)})
 window.addEventListener("success",(e)=>{toast("Success")})
 scopeTemplate.parseChildren(document.body)
