@@ -45,6 +45,7 @@ button {
 	border-radius: 3px;
 	cursor: pointer;
 	padding: 5px 15px;
+	min-height:28px;
 } button:hover { background: #777 }
 button.transparent { 
 	cursor:pointer; 
