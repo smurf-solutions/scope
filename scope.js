@@ -180,7 +180,10 @@ var scopeTemplate = {
 			if(data){ 
 				var form = this.querySelector("form"); if(form) form.reset() 
 				return this.setData(data)
-			} else return this
+			} else {
+				var af = this.querySelector("[autofocus]"); if(af) af.focus()
+				return this
+			}
 		}
 	},
 	hide: (el)=>{
