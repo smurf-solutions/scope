@@ -26,7 +26,7 @@ var dialogComponent = {
 		[].forEach.call( $container.querySelectorAll(dialogComponent.selector), dialogComponent.create)
 	},
 	create: (el)=>{
-			if(!el.id) el.id = "scope-"+(new Date).getTime()
+			if(!el.id) el.id = "dlg-"+(new Date).getTime()
 		
 			var closeButton = document.createElement("big")
 			closeButton.innerHTML = "&times;"
@@ -70,6 +70,8 @@ var formComponent = {
 		[].forEach.call( $container.querySelectorAll(formComponent.selector), formComponent.create)
 	},
 	create: (element)=>{
+		if(!element.id) element.id = "form-"+(new Date).getTime()
+		
 		element.addEventListener("submit",function(event){
 			event.preventDefault(); event.stopPropagation()
 			var fData = new FormData(element)
@@ -104,7 +106,7 @@ var formComponent = {
 		Properties: data-COMPONENT, [data-temaplate, data-url, data-json, data-on*]
 		Variables: $data, $parent, [$i, $row] 
 		Service EVENTS: render / data-onrender -> after any element is rendered
-		Functions: refresh, reload, setData, show, hide, broadcast
+		Functions: refresh, reload, setData, show, hide, broadcastEvent
 	**/
 var scopeTemplate = {
 	selector: "[-COMPONENT],[--TEMPLATE--],[__TEMPLATE__]",
@@ -186,11 +188,11 @@ var scopeTemplate = {
 	hide: (el)=>{
 		return function(){ this.style.display = "none"; return this }
 	},
-	broadcast: (el)=>{
+	broadcastEvent: (el)=>{
 		return function(message,details){
-			;[].forEach.call(document.body.querySelectorAll("data-on"+message), (child)=>{
+			;[].forEach.call(this.querySelectorAll("[data-on"+message+"],[data-on-"+message+"]"), (child)=>{
 				child.dispatchEvent(new CustomEvent(message,{details:details}))
-			})
+			});
 			return this
 		}
 	},
@@ -209,7 +211,7 @@ var scopeTemplate = {
 			el.show      = scopeTemplate.show(el)
 			el.hide      = scopeTemplate.hide(el)
 			el.setData   = scopeTemplate.setData(el)
-			el.broadcast = scopeTemplate.broadcast(el)
+			el.broadcastEvent = scopeTemplate.broadcastEvent(el)
 	},
 	initIf: (el)=>{
 			/*** 
@@ -408,25 +410,29 @@ var scopeTemplate = {
 		// customized events
 		function setOnEvents(el, $parent){
 			// if already passed with parent scope
-			if((el.ready && el.ready.events) ) return;
-
+			if(!el.ready) el.ready = {}
+			if(el.ready.events) return;
+			else el.ready.events = true
+			
 			;[].forEach.call( el.attributes, (a)=>{
 				if(a.nodeName.match(/^data-on/i)){
-					if(!el.ready) el.ready = {}; el.ready.events = true
-					var ev = a.nodeName.replace(/^data-on/i,"")
+					var $ev = a.nodeName.replace(/^data-on[-]?/i,"")
 					
 					var id = el.id
 					if(el.id){
 						if(!window.addedEventListeners ) window.addedEventListeners = {}
 						if(!window.addedEventListeners[el.id]) window.addedEventListeners[el.id]=[]
 					}
-					if(!el.id || window.addedEventListeners[el.id].indexOf(ev) < 0){
-						if(el.id) window.addedEventListeners[el.id].push(ev)
-						el.addEventListener(ev,event=>{
-							var $this = el, $data = $parent.data, functions = $parent.templateScript
-							if(functions) {
-								functions = functions.replace(/\/\*[\s\S]*?\*\//g, "")
-								eval(scopeTemplate.htmlDecode(functions.substr(functions.indexOf("function"))))
+					
+					if(!el.id || window.addedEventListeners[el.id].indexOf($ev) == -1){
+						if(el.id) window.addedEventListeners[el.id].push($ev)
+						el.addEventListener($ev,event=>{
+							var $this = el, $data = $parent.data, $functions = $parent.templateScript
+							if($functions) {
+								$functions = $functions.replace(/\/\*[\s\S]*?\*\//g, "")
+								$functions = scopeTemplate.htmlDecode($functions.substr($functions.indexOf("function")))
+								try{eval($functions)
+								}catch(e){console.error("Error evaluating the parent script: \n",$functions,"\n-- on event\n",$ev,"\n-- parent\n",el.parent,"\n\n-- called from \n",el)}
 							}
 							try { eval(a.nodeValue.replace(/this/g,"$this") ) 
 							}catch(e){console.error("'"+a.nodeName+"' => ",e.toString(),"\n-- element\n",el,"\n-- parent",$parent)}
@@ -479,7 +485,8 @@ var scopeTemplate = {
 	}
 }
 
+document.body.broadcastEvent = scopeTemplate.broadcastEvent(document.body)
 window.addedEventListeners = {}
-window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg) : console.log(e)})
+window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg) : console.error(e)})
 window.addEventListener("success",(e)=>{toast("Success")})
 scopeTemplate.parseChildren(document.body)
