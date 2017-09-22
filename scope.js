@@ -485,7 +485,7 @@ var scopeTemplate = {
 	}
 }
 
-document.body.broadcastEvent = scopeTemplate.broadcastEvent(document.body)
+window.broadcastEvent = scopeTemplate.broadcastEvent(document.body)
 window.addedEventListeners = {}
 window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg) : console.error(e)})
 window.addEventListener("success",(e)=>{toast("Success")})
