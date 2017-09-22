@@ -140,7 +140,7 @@ dialog input, dialog textarea, dialog select {
 	background: #fafafa;
 }
 
-:required { font-weight: bold; }
+.required, :required { font-weight: bold; }
 input:required:invalid { border-color:red; }
 
 
