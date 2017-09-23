@@ -25,37 +25,42 @@ var dialogComponent = {
 	parse: ($container)=>{
 		[].forEach.call( $container.querySelectorAll(dialogComponent.selector), dialogComponent.create)
 	},
+	appendClose: (el)=>{
+		var closeButton = document.createElement("big")
+		closeButton.innerHTML = "&times;"
+		closeButton.setAttribute("onclick",'this.dispatchEvent(new Event("hide",{bubbles:true}))')
+		closeButton.setAttribute( "style",'position:absolute; right:0px;top:0px; padding:0px 8px;cursor:pointer; font-size:1.8em;text-align:center;font-weight:bold; line-height: 28px; width: 28px; height: 28px; border-radius:3px;')
+		closeButton.onmouseover = function(){this.style.background="rgba(0,0,0,0.05)"}
+		closeButton.onmouseout = function(){this.style.background="transparent"}
+		el.appendChild( closeButton )
+		return el
+	},
 	create: (el)=>{
+			if(!scopeTemplate.isTemplate(el)){ 
+				dialogComponent.appendClose(el)
+				el.show = function(data){
+					el.style.display="block"
+					var autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
+					if(data){ var form = el.querySelector("form"); if(form) form.reset() }
+					if(typeof data=="object"){ ;[].forEach.call(Object.keys(data),(k)=>{
+						var f = el.querySelector('[name="'+k+'"]'); if(f) f.value = data[k]
+					}) }
+				}
+				el.hide = function(){ 
+					el.style.display="none"
+				}
+			}
+			
+			
 			if(!el.id) el.id = "dlg-"+(new Date).getTime()
-		
-			var closeButton = document.createElement("big")
-			closeButton.innerHTML = "&times;"
-			closeButton.setAttribute("onclick",'this.dispatchEvent(new Event("hide",{bubbles:true}))')
-			closeButton.setAttribute( "style",'position:absolute; right:0px;top:0px; padding:0px 8px;cursor:pointer; font-size:1.8em;text-align:center;font-weight:bold; line-height: 28px; width: 28px; height: 28px; border-radius:3px;')
-			closeButton.onmouseover = function(){this.style.background="rgba(0,0,0,0.05)"}
-			closeButton.onmouseout = function(){this.style.background="transparent"}
-			el.appendChild( closeButton )
-
+				
 			if(!el.onkeyup) el.onkeyup = function(e){
 				if (e.keyCode === 27) window[el.id].hide()
 			}
-		
-			el.show = function(data){
-				el.style.display="block"
-				var autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
-				if(data){ var form = el.querySelector("form"); if(form) form.reset() }
-				if(typeof data=="object"){
-						[].forEach.call(Object.keys(data),(k)=>{
-							var f = el.querySelector('[name="'+k+'"]'); if(f) f.value = data[k]
-						})
-				}
-			}
-			el.hide = function(){ el.style.display="none"}
-
-			if(!el.hasAttribute("data-onhide")){ 
+			if(!el.hasAttribute("data-onhide") && !el.hasAttribute("data-on-hide")){ 
 				el.addEventListener("hide",function(){window[el.id].hide()})
 			}
-			if(!el.hasAttribute("data-onclose")){
+			if(!el.hasAttribute("data-onclose") && !el.hasAttribute("data-on-close")){
 				el.addEventListener("close",function(){window[el.id].hide()})
 			}
 	}
@@ -400,6 +405,7 @@ var scopeTemplate = {
 			}
 		}
 		el.innerHTML = content
+		if(el.nodeName=="DIALOG") dialogComponent.appendClose(el)
 		scopeTemplate.initEvents(el)
 		;[].forEach.call(el.querySelectorAll("[data-onrender]"),(child)=>{child.dispatchEvent(new Event("render"))})
 		var autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
@@ -459,6 +465,9 @@ var scopeTemplate = {
 	},
 	
 	// --- Tools
+	isTemplate: (el)=>{
+		return el.hasAttribute('__TEMPlATE__')
+	},
 	htmlDecode: (str)=>{
 		return !str ? str : str.replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
 	},
@@ -487,7 +496,9 @@ var scopeTemplate = {
 
 document.body.broadcastEvent = scopeTemplate.broadcastEvent(document.body)
 window.broadcastEvent = function(msg,details){document.body.broadcastEvent(msg,details)}
+
 window.addedEventListeners = {}
 window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg) : console.error(e)})
 window.addEventListener("success",(e)=>{toast("Success")})
+
 scopeTemplate.parseChildren(document.body)
