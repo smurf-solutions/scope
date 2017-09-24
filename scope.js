@@ -18,6 +18,38 @@ function toast( message ){
 }
 
 
+/** AJAX
+	**/
+// ajax( method, url, cb, formData ) {
+function ajax(url,cb){
+	var method = "GET"
+	
+	progress.start()
+	
+	var http = new XMLHttpRequest()
+	http.onreadystatechange = function() { 
+		if ( http.readyState == 4 ){ 
+			progress.stop()
+			switch(http.status){
+				case 200: var j = http.responseText
+					try { j = JSON.parse( j ) 
+					} catch ( e ) { console.log(e); alert("JSON error - Server Response") }
+					if( (j && j.errmsg) || (typeof j == "string" && j.length)) alert( j.errmsg ? j.errmsg : j.toString() )
+					else if(cb) switch(typeof cb){
+						case 'function': cb( j ); break
+						case 'string': broadcastEvent(cb); toast('Success'); break
+					}
+					break;
+				case 401: location.reload(); break
+				default : alert( http.statusText || "Server error "+http.status ) 
+			}
+		}		
+	}
+	try { http.open( method, url, true ); http.send( null )
+	} catch ( e ) { alert( e ); throw e }
+}
+
+
 /** DIALOGS
 	**/
 var dialogComponent = {
@@ -340,9 +372,11 @@ var scopeTemplate = {
 					try { var ret = JSON.parse(this.responseText)
 					}catch(e){console.error("Parsing 'data-url' => ",e.toString(),"\n\n-- data\n",this.responseText,"\n\n-- element",el); return}
 					
+					if(!ret) console.error("NULL data from URL: "+ el.dataset.url+"\n-- element\n",el,"\n-- parent\n",el.parent,"\n-- advice: Use 'data-if' attribute !")
+					
 					if(Array.isArray(ret)) {
 						  el.data = ret.map(a=>Object.assign(a,el.data))
-					}else el.data = Object.assign( ret, el.data||{} )
+					}else el.data = Object.assign( ret||{}, el.data||{} )
 					
 					progress.stop()
 					el.ready['data'] = true
