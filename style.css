@@ -64,10 +64,12 @@ button.accent {
 	background: transparent; border: transparent;
 	color: #333;
 }
+/*
 a.icon { cursor:pointer }
 a.icon:hover, button.icon:hover { background: rgba(0,0,0,0.05); }
-
+*/
 a { cursor: pointer }
+a:hover, button.icon:hover { background: rgba(0,0,0,0.05) }
 
 menu { 
 	list-style-type: none;
