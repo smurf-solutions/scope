@@ -1,5 +1,5 @@
-/** Convert bites in  human readble string **/
-function fileSizeToHuman(b) { b = b?b:0
+/** Convert bites to  human readble string **/
+function bitsToHuman(b) { b = b?b:0
     var s=1024, u = 0; while (b >= s || -b >= s) { b /= s; u++ }
     return (u ? b.toFixed(1) + ' ' : b) + ' KMGTPEZY'[u] + 'B'
 }
