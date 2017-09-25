@@ -69,6 +69,7 @@ button.icon:hover { background: rgba(0,0,0,0.05) }
 a:not([href]) { cursor: pointer } 
 a:not([href]):hover { text-decoration: underline }
 
+hr { border-bottom-width: 0px}
 
 menu { 
 	list-style-type: none;
