@@ -226,9 +226,9 @@ var scopeTemplate = {
 		return function(){ this.style.display = "none"; return this }
 	},
 	broadcastEvent: (el)=>{
-		return function(message,details){
+		return function(message,detail){
 			;[].forEach.call(this.querySelectorAll("[data-on"+message+"],[data-on-"+message+"]"), (child)=>{
-				child.dispatchEvent(new CustomEvent(message,{details:details}))
+				child.dispatchEvent(new CustomEvent(message,{detail:detail}))
 			});
 			return this
 		}
@@ -396,7 +396,7 @@ var scopeTemplate = {
 		
 		function safeEval($tpl, $data, lastError){
 			with($data){
-				try{ return eval("`"+ $tpl +"`")
+				try{ return eval("`"+ scopeTemplate.htmlDecode($tpl) +"`")
 				}catch(e){
 					if(e.message !== lastError 
 						&& (e.message.substr(-15)==' is not defined' || e.message.substr(-13)==' is undefined')
@@ -441,7 +441,7 @@ var scopeTemplate = {
 		el.innerHTML = content
 		if(el.nodeName=="DIALOG") dialogComponent.appendClose(el)
 		scopeTemplate.initEvents(el)
-		;[].forEach.call(el.querySelectorAll("[data-onrender]"),(child)=>{child.dispatchEvent(new Event("render"))})
+		;[].forEach.call(el.querySelectorAll("[data-onrender],[data-on-render]"),(child)=>{child.dispatchEvent(new Event("render"))})
 		var autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
 		scopeTemplate.parseChildren(el)
 	},
