@@ -56,6 +56,9 @@ button.accent {
 	background: #4285f4; /*darkorange;*/
 	border-color: #4285f4; /* darkorange*/
 } button.accent:hover { background: #3a7dec; /* orange*/ }
+button.warn, button.warning { 
+	background:orange; border-color: orange;
+} button.warn:hover, button.warning:hover { background:darkorange }
 
 .icon{
 	padding: 2px 5px;
