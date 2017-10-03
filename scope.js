@@ -153,8 +153,14 @@ var scopeTemplate = {
 	parseChildren: ($parent)=>{
 			dialogComponent.parse($parent)
 			formComponent.parse($parent)
+			
+			var passed = []
 			;[].forEach.call( $parent.querySelectorAll(scopeTemplate.selector), (el)=>{
-				scopeTemplate.create( el, $parent )
+				if(!el.id) el.id = "scope-"+(new Date).getTime()
+				var isParent = true
+				;[].forEach.call(passed,(p)=>{ if(p.querySelector("#"+el.id)) isParent = false })
+				if(isParent) scopeTemplate.create( el, $parent )
+				passed.push(el)
 			})
 	},
 	
@@ -236,7 +242,7 @@ var scopeTemplate = {
 	
 	//----- Inits ------
 	initService: (el,$parent)=>{
-			if(!el.id) el.id = "scope-"+(new Date).getTime()
+			
 			
 			el.parent  = $parent; 
 			el.parents = ($parent.parents||[]); el.parents.push($parent)
@@ -371,8 +377,12 @@ var scopeTemplate = {
 				let http = new XMLHttpRequest; http.addEventListener("load",function(e){
 					try { var ret = JSON.parse(this.responseText)
 					}catch(e){console.error("Parsing 'data-url' => ",e.toString(),"\n\n-- data\n",this.responseText,"\n\n-- element",el); return}
+
+					if(typeof ret =='number' || typeof ret =='string') 
+						ret = {"$data":ret}
 					
-					if(!ret) console.error("NULL data from URL: "+ el.dataset.url+"\n-- element\n",el,"\n-- parent\n",el.parent,"\n-- advice: Use 'data-if' attribute !")
+					if(ret===null) 
+						console.warn("NULL data from URL: "+ el.dataset.url+"\n-- element\n",el,"\n-- parent\n",el.parent,"\n-- advice: Use 'data-if' attribute !")
 					
 					if(Array.isArray(ret)) {
 						  el.data = ret.map(a=>Object.assign(a,el.data))
