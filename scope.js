@@ -451,7 +451,17 @@ var scopeTemplate = {
 		el.innerHTML = content
 		if(el.nodeName=="DIALOG") dialogComponent.appendClose(el)
 		scopeTemplate.initEvents(el)
-		;[].forEach.call(el.querySelectorAll("[data-onrender],[data-on-render]"),(child)=>{child.dispatchEvent(new Event("render"))})
+		
+		function childOf(c,p){while((c=c.parentNode)&&c!==p);return !!c}
+		;[].forEach.call(el.querySelectorAll("[data-onrender],[data-on-render]"),(child)=>{
+			var isTemplateChild = false
+			;[].forEach.call(el.querySelectorAll(scopeTemplate.selector),(par)=>{
+				if(childOf(child,par)) isTemplateChild = true 
+			}) 
+			if(!isTemplateChild) child.dispatchEvent(new Event("render"))
+		})
+	
+	
 		var autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
 		scopeTemplate.parseChildren(el)
 	},
