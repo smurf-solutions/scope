@@ -4,7 +4,7 @@
 var progress = document.getElementById("progress")
 if(!progress) { 
 	document.body.innerHTML += '<progress id="progress"></progress>'
-	progress = document.getElementById("progress")
+	//progress = document.getElementById("progress")
 }
 progress.dataset.counter = 0
 progress.style.cssText = "position:fixed;top:0;left:0;height:6px;width:100%;"
