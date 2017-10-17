@@ -1,10 +1,10 @@
-/*** v.1 **/
+/*** v.1 ***/
 /** PROGRESS BAR
 		usage: progress.start(), progress.stop()	
 	**/
 var progressbar = document.getElementById("progressbar")
 if(!progressbar) { 
-	document.body.innerHTML += '<progress id="progressbar"></progress>'
+	document.body.innerHTML += '<progres id="progressbar"></progres>'
 	progressbar = document.getElementById("progressbar")
 }
 progressbar.dataset.counter = 0
@@ -190,7 +190,7 @@ var scopeTemplate = {
 			progressbar.stop()
 			return el
 	},
-	reload: (el)=>{  
+	refresh: (el)=>{   // just redraw
 		return function(){
 				this.ready = { 
 					visible:false,
@@ -202,6 +202,19 @@ var scopeTemplate = {
 				this.isReloading = true
 				return scopeTemplate.process(this)
 			}
+	},
+	reload: (el)=>{ // recalculate url and redraw
+		return function(){
+				this.ready = { 
+					visible:false,
+					template: false,
+					data:false,
+					rendered:false,
+					events:false
+				};
+				this.isReloading = true
+				return scopeTemplate.process(this)
+		}
 	},
 	setData: (el)=>{
 		return function(data){
@@ -219,7 +232,7 @@ var scopeTemplate = {
 						this.dataset.json = scopeTemplate.safeStringify(data)
 					}
 				}
-				return this.reload()
+				return this.refresh()
 		}
 	},
 	show: (el)=>{
@@ -255,8 +268,8 @@ var scopeTemplate = {
 			
 			el.addedEventListeners = []
 			
-			el.reload    = scopeTemplate.reload(el)
-			el.refresh   = scopeTemplate.reload(el)
+			el.reload    = scopeTemplate.refresh(el)
+			el.refresh   = scopeTemplate.refresh(el)
 			el.show      = scopeTemplate.show(el)
 			el.hide      = scopeTemplate.hide(el)
 			el.setData   = scopeTemplate.setData(el)
