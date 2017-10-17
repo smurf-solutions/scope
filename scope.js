@@ -268,7 +268,7 @@ var scopeTemplate = {
 			
 			el.addedEventListeners = []
 			
-			el.reload    = scopeTemplate.refresh(el)
+			el.reload    = scopeTemplate.reload(el)
 			el.refresh   = scopeTemplate.refresh(el)
 			el.show      = scopeTemplate.show(el)
 			el.hide      = scopeTemplate.hide(el)
