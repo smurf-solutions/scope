@@ -1,3 +1,4 @@
+/*** v.1 **/
 /** PROGRESS BAR
 		usage: progress.start(), progress.stop()	
 	**/
