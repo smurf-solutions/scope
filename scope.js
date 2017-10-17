@@ -280,7 +280,7 @@ var scopeTemplate = {
 	},
 	initTemplate: (el)=>{
 			/***
-				el.template = data-template, data-template-url, innerHTML
+				el.template = data-template="url", [data-template-url] or innerHTML
 			***/
 			if(el.ready['template']) return
 
@@ -436,6 +436,10 @@ var scopeTemplate = {
 		if(!el.isVisible){
 			content += safeEval(el.dataset.else||"", el.data);
 		} else {
+			if(typeof el.data == "number"){
+				let len = el.data; el.data = []
+				for(var i=0; i < len; i++) el.data.push(i)
+			}
 			if(Array.isArray(el.data)){
 				if(el.templateEmpty && el.data.length == 0){
 					content += safeEval(el.templateEmpty,{"$parent":el.parent})
@@ -443,7 +447,7 @@ var scopeTemplate = {
 					if(el.templateFirst){
 						content += safeEval(el.templateFirst,{"$data":el.data,"$parent":el.parent})
 					}
-					[].forEach.call(el.data,($row,$i)=>{
+					;[].forEach.call(el.data,($row,$i)=>{
 						content += safeEval( el.template,Object.assign($row,{"$i":$i,"$row":$row,"$parent":el.parent}))
 					})
 					if(el.templateLast){
