@@ -4,7 +4,7 @@
 var progressbar = document.getElementById("progressbar")
 if(!progressbar) { 
 	document.body.innerHTML += '<progress id="progressbar"></progress>'
-	//progressbar = document.getElementById("progressbar")
+	progressbar = document.getElementById("progressbar")
 }
 progressbar.dataset.counter = 0
 progressbar.style.cssText = "position:fixed;top:0;left:0;height:6px;width:100%;"
