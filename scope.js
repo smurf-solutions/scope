@@ -1,15 +1,15 @@
 /** PROGRESS BAR
 		usage: progress.start(), progress.stop()	
 	**/
-var progress = document.getElementById("progress")
-if(!progress) { 
-	document.body.innerHTML += '<progress id="progress"></progress>'
-	//progress = document.getElementById("progress")
+var progressbar = document.getElementById("progressbar")
+if(!progressbar) { 
+	document.body.innerHTML += '<progres id="progressbar"></progres>'
+	//progressbar = document.getElementById("progressbar")
 }
-progress.dataset.counter = 0
-progress.style.cssText = "position:fixed;top:0;left:0;height:6px;width:100%;"
-progress.start = ()=>{ if(++progress.dataset.counter == 1) progress.style.display = "block"}
-progress.stop  = ()=>{ if(--progress.dataset.counter == 0) progress.style.display = "none" }
+progressbar.dataset.counter = 0
+progressbar.style.cssText = "position:fixed;top:0;left:0;height:6px;width:100%;"
+progressbar.start = ()=>{ if(++progressbar.dataset.counter == 1) progressbar.style.display = "block"}
+progressbar.stop  = ()=>{ if(--progressbar.dataset.counter == 0) progressbar.style.display = "none" }
 
 
 /** TOASTS
@@ -29,12 +29,12 @@ function toast( message ){
 function ajax(url,cb){
 	var method = "GET"
 	
-	progress.start()
+	progressbar.start()
 	
 	var http = new XMLHttpRequest()
 	http.onreadystatechange = function() { 
 		if ( http.readyState == 4 ){ 
-			progress.stop()
+			progressbar.stop()
 			switch(http.status){
 				case 200: var j = http.responseText
 					try { j = JSON.parse( j ) 
@@ -119,7 +119,7 @@ var formComponent = {
 			var fData = new FormData(element)
 			var http = new XMLHttpRequest
 			
-			progress.start()
+			progressbar.start()
 			
 			http.open("POST", element.getAttribute("action"))
 			http.addEventListener("load",function(){
@@ -129,7 +129,7 @@ var formComponent = {
 				} else {
 					element.dispatchEvent(new CustomEvent("success",{detail:ret,bubbles:true}))
 				}
-				progress.stop()
+				progressbar.stop()
 			})
 			http.addEventListener("error",alert)
 			http.send(fData)
@@ -181,12 +181,12 @@ var scopeTemplate = {
 			return scopeTemplate.process(el)
 	},
 	process: (el)=>{
-			progress.start()
+			progressbar.start()
 			scopeTemplate.initTemplate(el)
 			if( scopeTemplate.initIf(el) ){
 				scopeTemplate.initData(el)
 			}
-			progress.stop()
+			progressbar.stop()
 			return el
 	},
 	reload: (el)=>{  
@@ -351,11 +351,11 @@ var scopeTemplate = {
 			}
 			
 			if(el.dataset.templateUrl){
-				progress.start()				
+				progressbar.start()				
 				var http = new XMLHttpRequest; http.addEventListener("load",function(e){
 					el.innerHTML = this.responseText; parseInnerHTML()
 					scopeTemplate.render(el)
-					progress.stop()
+					progressbar.stop()
 				}); http.open("GET",el.dataset.templateUrl ); http.send()
 			}  else {
 				parseInnerHTML()
@@ -375,7 +375,7 @@ var scopeTemplate = {
 			} else el.data = {}
 			
 			if(el.dataset.url){
-				progress.start()
+				progressbar.start()
 				el.originalUrl = el.dataset.url
 				el.data = Array.isArray(el.data) ? {} : el.data||{};
 				
@@ -393,7 +393,7 @@ var scopeTemplate = {
 						  el.data = ret.map(a=>Object.assign(a,el.data))
 					}else el.data = Object.assign( ret||{}, el.data||{} )
 					
-					progress.stop()
+					progressbar.stop()
 					el.ready['data'] = true
 					scopeTemplate.render(el)
 				}); http.open("GET",el.dataset.url); http.send()
