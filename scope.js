@@ -3,7 +3,7 @@
 	**/
 var progressbar = document.getElementById("progressbar")
 if(!progressbar) { 
-	document.body.innerHTML += '<progres id="progressbar"></progres>'
+	document.body.innerHTML += '<progress id="progressbar"></progress>'
 	//progressbar = document.getElementById("progressbar")
 }
 progressbar.dataset.counter = 0
