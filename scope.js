@@ -436,8 +436,8 @@ var scopeTemplate = {
 		if(!el.isVisible){
 			content += safeEval(el.dataset.else||"", el.data);
 		} else {
-			if(typeof el.data == "number"){
-				let len = el.data; el.data = []
+			if(el.hasAttribute("data-repeat")){
+				let len = parseInt(el.dataset.repeat); el.data = []
 				for(var i=0; i < len; i++) el.data.push(i)
 			}
 			if(Array.isArray(el.data)){
