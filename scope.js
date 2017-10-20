@@ -146,13 +146,13 @@ var formComponent = {
 
 
 /** SCOPE TEMPLATES
-		Properties: data-COMPONENT, [data-temaplate, data-url, data-json, data-on*]
+		Properties: __TEMPLATE__, [data-temaplate, data-url, data-json, data-repeat, data-on*]
 		Variables: $data, $parent, [$i, $row] 
 		Service EVENTS: render / data-onrender -> after any element is rendered
 		Functions: refresh, reload, setData, show, hide, broadcastEvent
 	**/
 var scopeTemplate = {
-	selector: "[-COMPONENT],[--TEMPLATE--],[__TEMPLATE__]",
+	selector: "[__TEMPLATE__]",
 	
 	// ----- Controllers -----
 	
@@ -206,6 +206,13 @@ var scopeTemplate = {
 	setData: (el)=>{
 		return function(data){
 				if(typeof data == "string"){
+					let now = Date.now()
+					if(!this._lastTimeLoaded) {
+						this._lastTimeLoaded = now
+					} else { 
+						if(now - this._lastTimeLoaded < 1000) return this
+					}
+					this._lastTimeLoaded = now
 					if(this.originalJson) this.dataset.json = this.originalJson
 					this.dataset.url = data
 				} else if(typeof data == "object"){
