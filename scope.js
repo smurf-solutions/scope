@@ -205,14 +205,10 @@ var scopeTemplate = {
 	},
 	setData: (el)=>{
 		return function(data){
+				if(this.isRunning(this)) 
+					return this
+					
 				if(typeof data == "string"){
-					let now = Date.now()
-					if(!this._lastTimeLoaded) {
-						this._lastTimeLoaded = now
-					} else { 
-						if(now - this._lastTimeLoaded < 1000) return this
-					}
-					this._lastTimeLoaded = now
 					if(this.originalJson) this.dataset.json = this.originalJson
 					this.dataset.url = data
 				} else if(typeof data == "object"){
@@ -253,10 +249,9 @@ var scopeTemplate = {
 		}
 	},
 	
+	
 	//----- Inits ------
 	initService: (el,$parent)=>{
-			
-			
 			el.parent  = $parent; 
 			el.parents = ($parent.parents||[]); el.parents.push($parent)
 			
@@ -562,6 +557,13 @@ var scopeTemplate = {
 						return scopeTemplate.safeEval($tpl,Object.assign($data,{[$var]:""}),e.message)
 					}else{console.error("Render template => ",e.toString(),"\n\n-- template\n",$tpl,"\n\n-- data\n",$data /*,"\n\n-- element",el*/); return}
 			}	}	
+	},
+	isRunning: (el)=>{
+		let now = Date.now()
+		if(!el._lastTimeLoaded) { el._lastTimeLoaded = now
+		} else if(now - el._lastTimeLoaded < 1000) return true
+		el._lastTimeLoaded = now
+		return false
 	}
 }
 
