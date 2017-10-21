@@ -205,7 +205,7 @@ var scopeTemplate = {
 	},
 	setData: (el)=>{
 		return function(data){
-				if(this.isRunning(this)) 
+				if(scopeTemplate.isRunning(this)) 
 					return this
 					
 				if(typeof data == "string"){
