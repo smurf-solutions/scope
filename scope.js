@@ -228,7 +228,7 @@ var scopeTemplate = {
 	show: (el)=>{
 		return function(data){
 			if(this.nodeName=="DIALOG" && !this.classList.contains("modal")){ 
-				;[].forEach.call(document.querySelector("dialog"),(dlg)=>{ if(dlg.style.display=="block") dlg.hide()}) 
+				;[].forEach.call(document.querySelectorAll("dialog"),(dlg)=>{ if(dlg.style.display=="block") dlg.hide()}) 
 			}
 			this.style.display = "block"
 			if(data){ 
