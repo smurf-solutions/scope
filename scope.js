@@ -278,6 +278,10 @@ var scopeTemplate = {
 			if(el.dataset.if){
 				el.isVisible = scopeTemplate.safeEval(el.dataset.if, el.parent.data||{})
 			}
+			if(el.dataset.hidden){
+				el.isVisible = false
+				delete(el.dataset.hidden)
+			}
 			if(!el.isVisible) { el.innerHTML = el.dataset.else||""
 			} else scopeTemplate.render(el)
 			
