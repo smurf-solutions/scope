@@ -378,7 +378,7 @@ var scopeTemplate = {
 			/***
 				el.data = data-url, data-json
 			***/
-			if(el.ready.data) return
+			if(el.ready.data || !el.isVisible) return
 
 			if(el.dataset.json){
 				el.originalJson = el.dataset.json 
