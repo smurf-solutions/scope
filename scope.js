@@ -107,7 +107,7 @@ var dialogComponent = {
 
 /** FORMS
 	**/
-var formComponent = {
+let formComponent = {
 	selector: "form[method=ajax]",
 	parse: ($container)=>{
 		[].forEach.call( $container.querySelectorAll(formComponent.selector), formComponent.create)
@@ -117,14 +117,14 @@ var formComponent = {
 		
 		element.addEventListener("submit",function(event){
 			event.preventDefault(); event.stopPropagation()
-			var fData = new FormData(element)
-			var http = new XMLHttpRequest
+			let fData = new FormData(element)
+			let http = new XMLHttpRequest
 			
 			progressbar.start()
 			
 			http.open("POST", element.getAttribute("action"))
 			http.addEventListener("load",function(){
-				var ret = JSON.parse(this.responseText)
+				let ret = JSON.parse(this.responseText)
 				if( ret.error ){
 					element.dispatchEvent(new CustomEvent("error",{detail:ret,bubbles:true}))
 				} else {
@@ -151,20 +151,19 @@ var formComponent = {
 		Service EVENTS: render / data-onrender -> after any element is rendered
 		Functions: refresh, reload, setData, show, hide, broadcastEvent
 	**/
-var scopeTemplate = {
+let scopeTemplate = {
 	selector: "[__TEMPLATE__]",
 	
 	// ----- Controllers -----
 	
 	parseChildren: ($parent)=>{
-			if($parent.hasAttribute("hidden") || $parent.style.display == 'none') return
 			dialogComponent.parse($parent)
 			formComponent.parse($parent)
 			
-			var passed = []
+			let passed = []
 			;[].forEach.call( $parent.querySelectorAll(scopeTemplate.selector), (el)=>{
 				if(!el.id) el.id = "scope-"+(new Date).getTime()
-				var isParent = true
+				let isParent = true
 				;[].forEach.call(passed,(p)=>{ if(p.querySelector("#"+el.id)) isParent = false })
 				if(isParent) scopeTemplate.create( el, $parent )
 				passed.push(el)
@@ -172,7 +171,6 @@ var scopeTemplate = {
 	},
 	
 	create: (el, $parent)=>{
-			if($parent.style.display=="none") return
 			el.ready = {
 				service: false,
 				visible: false,
@@ -234,10 +232,10 @@ var scopeTemplate = {
 			}
 			this.style.display = "block"
 			if(data){ 
-				var form = this.querySelector("form"); if(form) form.reset() 
+				let form = this.querySelector("form"); if(form) form.reset() 
 				return this.setData(data)
 			} else {
-				var af = this.querySelector("[autofocus]"); if(af) af.focus()
+				let af = this.querySelector("[autofocus]"); if(af) af.focus()
 				return this
 			}
 		}
@@ -280,11 +278,11 @@ var scopeTemplate = {
 			if(el.dataset.if){
 				el.isVisible = scopeTemplate.safeEval(el.dataset.if, el.parent.data||{})
 			}
-			if(el.hasAttribute("hidden") || el.style.display=="none"){
+			/*if(el.hasAttribute("hidden") || el.style.display=="none"){
 				el.isVisible = false
 				el.style.display = "none"
 				el.removeAttribute("hidden")
-			}
+			}*/
 			if(!el.isVisible) { el.innerHTML = el.dataset.else||""
 			} else scopeTemplate.render(el)
 			
@@ -304,9 +302,9 @@ var scopeTemplate = {
 				
 				// children first level
 				function setStyle(){
-					var node = document.createElement("style")
+					let node = document.createElement("style")
 					el.templateStyle.replace(/[\n\t]/g," ").split("}").forEach( line => {
-						var [k,s] = line.split("{")
+						let [k,s] = line.split("{")
 						if(k && s) node.innerHTML += scopeTemplate.htmlDecode(`#${el.id.replace(/\//g,"\\/")} ${k}{${s}}\n`)
 					})
 					document.head.appendChild(node)
@@ -323,9 +321,9 @@ var scopeTemplate = {
 				el.templateScript = el.dataset.script
 				el.templateStyle = el.dataset.style
 				
-				var children = el.children
-				for(var i=children.length-1; i>-1; i--){
-					var child = children[i]
+				let children = el.children
+				for(let i=children.length-1; i>-1; i--){
+					let child = children[i]
 					switch( child.getAttribute('role') ){
 						case 'empty' : 							    moveTo(child,'templateEmpty');  break;
 						case 'head'  : case 'header': case 'first': moveTo(child,'templateFirst');  break;
@@ -336,7 +334,7 @@ var scopeTemplate = {
 					switch( child.nodeName ){
 						case 'SCRIPT': 
 							if(!document.head.querySelector('script[data-origin="'+el.id+'"]')){
-								var s = document.createElement("script");if(child.src)s.src=child.src;s.dataset.origin=el.id;s.innerHTML=child.innerHTML;
+								let s = document.createElement("script");if(child.src)s.src=child.src;s.dataset.origin=el.id;s.innerHTML=child.innerHTML;
 								if( el.dataset.templateUrl || el.parents.filter((p)=>p.dataset.templateUrl).length ){
 									   document.head.appendChild( s );
 								} else document.head.innerHTML += s.outerHTML
@@ -365,7 +363,7 @@ var scopeTemplate = {
 			
 			if(el.dataset.templateUrl){
 				progressbar.start()				
-				var http = new XMLHttpRequest; http.addEventListener("load",function(e){
+				let http = new XMLHttpRequest; http.addEventListener("load",function(e){
 					el.innerHTML = this.responseText; parseInnerHTML()
 					scopeTemplate.render(el)
 					progressbar.stop()
@@ -379,7 +377,7 @@ var scopeTemplate = {
 			/***
 				el.data = data-url, data-json
 			***/
-			if(el.ready.data || el.parent.style.display=="none" || el.parent.hasAttribute("hidden")) return
+			if(el.ready.data) return
 
 			if(el.dataset.json){
 				el.originalJson = el.dataset.json 
@@ -393,7 +391,7 @@ var scopeTemplate = {
 				el.data = Array.isArray(el.data) ? {} : el.data||{};
 				
 				let http = new XMLHttpRequest; http.addEventListener("load",function(e){
-					try { var ret = JSON.parse(this.responseText)
+					try { let ret = JSON.parse(this.responseText)
 					}catch(e){console.error("Parsing 'data-url' => ",e.toString(),"\n\n-- data\n",this.responseText,"\n\n-- element",el); return}
 
 					if(typeof ret =='number' || typeof ret =='string') 
@@ -428,7 +426,7 @@ var scopeTemplate = {
 				}catch(e){
 					if(e.message !== lastError 
 						&& (e.message.substr(-15)==' is not defined' || e.message.substr(-13)==' is undefined')
-					){ var $var = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
+					){ let $let = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
 						return safeEval($tpl,Object.assign($data,{[$var]:""}),e.message)
 					}else{console.error("Render template => ",e.toString(),"\n\n-- template\n",$tpl,"\n\n-- data\n",$data,"\n\n-- element",el); return}
 		}	}	}
@@ -440,17 +438,17 @@ var scopeTemplate = {
 		el.ready.rendered = true
 
 		
-		var $data = el.data, $parent = el.parent
+		let $data = el.data, $parent = el.parent
 		try { eval(scopeTemplate.htmlDecode(el.templateScript)) 
 		}catch(e){console.error("Executing script => ",e.toString(),"\n-- script\n",el.templateScript,"\n-- element",el)}
 	
-		var content = ""
+		let content = ""
 		if(!el.isVisible){
 			content += safeEval(el.dataset.else||"", el.data);
 		} else {
 			if(el.hasAttribute("data-repeat")){
 				let len = parseInt(el.dataset.repeat); el.data = []
-				for(var i=0; i < len; i++) el.data.push(i)
+				for(let i=0; i < len; i++) el.data.push(i)
 			}
 			if(Array.isArray(el.data)){
 				if(el.templateEmpty && el.data.length == 0){
@@ -476,7 +474,7 @@ var scopeTemplate = {
 		
 		function childOf(c,p){while((c=c.parentNode)&&c!==p);return !!c}
 		;[].forEach.call(el.querySelectorAll("[data-onrender],[data-on-render]"),(child)=>{
-			var isTemplateChild = false
+			let isTemplateChild = false
 			;[].forEach.call(el.querySelectorAll(scopeTemplate.selector),(par)=>{
 				if(childOf(child,par)) isTemplateChild = true 
 			}) 
@@ -484,7 +482,7 @@ var scopeTemplate = {
 		})
 	
 	
-		var autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
+		let autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
 		scopeTemplate.parseChildren(el)
 	},
 	
@@ -498,9 +496,9 @@ var scopeTemplate = {
 			
 			;[].forEach.call( el.attributes, (a)=>{
 				if(a.nodeName.match(/^data-on/i)){
-					var $ev = a.nodeName.replace(/^data-on[-]?/i,"")
+					let $ev = a.nodeName.replace(/^data-on[-]?/i,"")
 					
-					var id = el.id
+					let id = el.id
 					if(el.id){
 						if(!window.addedEventListeners ) window.addedEventListeners = {}
 						if(!window.addedEventListeners[el.id]) window.addedEventListeners[el.id]=[]
@@ -509,7 +507,7 @@ var scopeTemplate = {
 					if(!el.id || window.addedEventListeners[el.id].indexOf($ev) == -1){
 						if(el.id) window.addedEventListeners[el.id].push($ev)
 						el.addEventListener($ev,event=>{
-							var $this = el, $data = $parent.data, $functions = $parent.templateScript
+							let $this = el, $data = $parent.data, $functions = $parent.templateScript
 							if($functions) {
 								$functions = $functions.replace(/\/\*[\s\S]*?\*\//g, "")
 								$functions = scopeTemplate.htmlDecode($functions.substr($functions.indexOf("function")))
@@ -548,7 +546,7 @@ var scopeTemplate = {
 		return !str ? str : str.replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
 	},
 	safeStringify: (obj)=>{
-		var cache = []
+		let cache = []
 		function cyrcularRefRemove(key,value){
 			if (typeof value === 'object' && value !== null)
 				if (cache.indexOf(value) !== -1) return;
@@ -563,7 +561,7 @@ var scopeTemplate = {
 				}catch(e){
 					if(e.message !== $$lastError 
 						&& (e.message.substr(-15)==' is not defined' || e.message.substr(-13)==' is undefined')
-					){ var $var = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
+					){ let $let = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
 						return scopeTemplate.safeEval($tpl,Object.assign($data,{[$var]:""}),e.message)
 					}else{console.error("Render template => ",e.toString(),"\n\n-- template\n",$tpl,"\n\n-- data\n",$data /*,"\n\n-- element",el*/); return}
 			}	}	
