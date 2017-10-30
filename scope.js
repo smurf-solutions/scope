@@ -379,7 +379,7 @@ var scopeTemplate = {
 			/***
 				el.data = data-url, data-json
 			***/
-			if(el.ready.data || el.style.display=="none" || el.hasAttribute("hidden")) return
+			if(el.ready.data || el.parent.style.display=="none" || el.parent.hasAttribute("hidden")) return
 
 			if(el.dataset.json){
 				el.originalJson = el.dataset.json 
