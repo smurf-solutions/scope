@@ -172,6 +172,7 @@ var scopeTemplate = {
 	},
 	
 	create: (el, $parent)=>{
+			if($parent.style.display=="none") return
 			el.ready = {
 				service: false,
 				visible: false,
