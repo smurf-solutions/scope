@@ -2,7 +2,7 @@
 /** PROGRESS BAR
 		usage: progress.start(), progress.stop()	
 	**/
-var progressbar = document.getElementById("progressbar")
+let progressbar = document.getElementById("progressbar")
 if(!progressbar) { 
 	document.body.innerHTML += '<progress id="progressbar"></progress>'
 	progressbar = document.getElementById("progressbar")
@@ -16,7 +16,7 @@ progressbar.stop  = ()=>{ if(--progressbar.dataset.counter == 0) progressbar.sty
 /** TOASTS
 	**/
 function toast( message ){
-	var toast = document.createElement("div")
+	let toast = document.createElement("div")
 	toast.setAttribute("class","toast")
 	document.body.appendChild( toast )
 	toast.innerHTML = message
@@ -28,16 +28,16 @@ function toast( message ){
 	**/
 // ajax( method, url, cb, formData ) {
 function ajax(url,cb){
-	var method = "GET"
+	let method = "GET"
 	
 	progressbar.start()
 	
-	var http = new XMLHttpRequest()
+	let http = new XMLHttpRequest()
 	http.onreadystatechange = function() { 
 		if ( http.readyState == 4 ){ 
 			progressbar.stop()
 			switch(http.status){
-				case 200: var j = http.responseText
+				case 200: let j = http.responseText
 					try { j = JSON.parse( j ) 
 					} catch ( e ) { console.log(e); alert("JSON error - Server Response") }
 					if( (j && j.errmsg) || (typeof j == "string" && j.length)) alert( j.errmsg ? j.errmsg : j.toString() )
@@ -58,13 +58,13 @@ function ajax(url,cb){
 
 /** DIALOGS
 	**/
-var dialogComponent = {
+let dialogComponent = {
 	selector: "dialog,[dialog]",
 	parse: ($container)=>{
 		[].forEach.call( $container.querySelectorAll(dialogComponent.selector), dialogComponent.create)
 	},
 	appendClose: (el)=>{
-		var closeButton = document.createElement("big")
+		let closeButton = document.createElement("big")
 		closeButton.innerHTML = "&times;"
 		closeButton.setAttribute("onclick",'this.dispatchEvent(new Event("hide",{bubbles:true}))')
 		closeButton.setAttribute( "style",'position:absolute; right:0px;top:0px; padding:0px 8px;cursor:pointer; font-size:1.8em;text-align:center;font-weight:bold; line-height: 28px; width: 28px; height: 28px; border-radius:3px;')
@@ -78,10 +78,10 @@ var dialogComponent = {
 				dialogComponent.appendClose(el)
 				el.show = function(data){
 					el.style.display="block"
-					var autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
-					if(data){ var form = el.querySelector("form"); if(form) form.reset() }
+					let autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
+					if(data){ let form = el.querySelector("form"); if(form) form.reset() }
 					if(typeof data=="object"){ ;[].forEach.call(Object.keys(data),(k)=>{
-						var f = el.querySelector('[name="'+k+'"]'); if(f) f.value = data[k]
+						let f = el.querySelector('[name="'+k+'"]'); if(f) f.value = data[k]
 					}) }
 				}
 				el.hide = function(){ 
@@ -426,7 +426,7 @@ let scopeTemplate = {
 				}catch(e){
 					if(e.message !== lastError 
 						&& (e.message.substr(-15)==' is not defined' || e.message.substr(-13)==' is undefined')
-					){ let $let = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
+					){ let $var = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
 						return safeEval($tpl,Object.assign($data,{[$var]:""}),e.message)
 					}else{console.error("Render template => ",e.toString(),"\n\n-- template\n",$tpl,"\n\n-- data\n",$data,"\n\n-- element",el); return}
 		}	}	}
@@ -561,7 +561,7 @@ let scopeTemplate = {
 				}catch(e){
 					if(e.message !== $$lastError 
 						&& (e.message.substr(-15)==' is not defined' || e.message.substr(-13)==' is undefined')
-					){ let $let = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
+					){ let $var = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
 						return scopeTemplate.safeEval($tpl,Object.assign($data,{[$var]:""}),e.message)
 					}else{console.error("Render template => ",e.toString(),"\n\n-- template\n",$tpl,"\n\n-- data\n",$data /*,"\n\n-- element",el*/); return}
 			}	}	
