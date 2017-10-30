@@ -390,8 +390,9 @@ let scopeTemplate = {
 				el.originalUrl = el.dataset.url
 				el.data = Array.isArray(el.data) ? {} : el.data||{};
 				
+				let ret
 				let http = new XMLHttpRequest; http.addEventListener("load",function(e){
-					try { let ret = JSON.parse(this.responseText)
+					try { ret = JSON.parse(this.responseText)
 					}catch(e){console.error("Parsing 'data-url' => ",e.toString(),"\n\n-- data\n",this.responseText,"\n\n-- element",el); return}
 
 					if(typeof ret =='number' || typeof ret =='string') 
