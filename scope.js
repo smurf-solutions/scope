@@ -157,7 +157,7 @@ var scopeTemplate = {
 	// ----- Controllers -----
 	
 	parseChildren: ($parent)=>{
-			if($parent.hasAttribute("hidde") || $parent.style.display == 'none') return
+			if($parent.hasAttribute("hidden") || $parent.style.display == 'none') return
 			dialogComponent.parse($parent)
 			formComponent.parse($parent)
 			
