@@ -152,7 +152,7 @@ let formComponent = {
 		Functions: refresh, reload, setData, show, hide, broadcastEvent
 	**/
 let scopeTemplate = {
-	selector: "[__TEMPLATE__]",
+	selector: "[__TEMPLATE__],[__template__]",
 	
 	// ----- Controllers -----
 	
@@ -389,8 +389,7 @@ let scopeTemplate = {
 				progressbar.start()
 				el.originalUrl = el.dataset.url
 				el.data = Array.isArray(el.data) ? {} : el.data||{};
-				
-				let ret
+				let ret 
 				let http = new XMLHttpRequest; http.addEventListener("load",function(e){
 					try { ret = JSON.parse(this.responseText)
 					}catch(e){console.error("Parsing 'data-url' => ",e.toString(),"\n\n-- data\n",this.responseText,"\n\n-- element",el); return}
