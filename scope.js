@@ -280,6 +280,7 @@ var scopeTemplate = {
 			}
 			if(el.dataset.hidden){
 				el.isVisible = false
+				el.style.display = "none"
 				delete(el.dataset.hidden)
 			}
 			if(!el.isVisible) { el.innerHTML = el.dataset.else||""
