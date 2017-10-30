@@ -279,7 +279,7 @@ var scopeTemplate = {
 				el.isVisible = scopeTemplate.safeEval(el.dataset.if, el.parent.data||{})
 			}
 			// Attr "hidden" stops to render on create
-			if(el.hasAttribute("hidden")){
+			if(el.hasAttribute("hidden") || el.style.display==""){
 				el.isVisible = false
 				el.style.display = "none"
 				el.removeAttribute("hidden")
