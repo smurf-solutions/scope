@@ -280,9 +280,10 @@ var scopeTemplate = {
 			if(el.dataset.if){
 				el.isVisible = scopeTemplate.safeEval(el.dataset.if, el.parent.data||{})
 			}
-			// Attr "hidden" stops to render on create
-			if(el.parent.hasAttribute("hidden") || el.parent.style.display=="none"){
+			if(el.hasAttribute("hidden") || el.style.display=="none"){
 				el.isVisible = false
+				el.style.display = "none"
+				el.removeAttribute("hidden")
 			}
 			if(!el.isVisible) { el.innerHTML = el.dataset.else||""
 			} else scopeTemplate.render(el)
