@@ -572,9 +572,8 @@ let scopeTemplate = {
 	},
 	isRunning: (el)=>{
 		let now = Date.now()
-		console.log(now)
 		if(!el._lastTimeLoaded) { el._lastTimeLoaded = now
-		} else if(now - el._lastTimeLoaded < 10) return true
+		} else if(now - el._lastTimeLoaded < 25) return true
 		el._lastTimeLoaded = now
 		return false
 	}
