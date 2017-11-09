@@ -192,6 +192,10 @@ let scopeTemplate = {
 	},
 	reload: (el)=>{  
 		return function(){
+				let ts = Date.now()
+				if( this.lastTimeStamp && (this.lastTimeStamp-ts < 100)) return
+				this.lastTimeStamp = ts
+				
 				this.ready = { 
 					visible:false,
 					template: true,
