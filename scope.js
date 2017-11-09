@@ -193,8 +193,8 @@ let scopeTemplate = {
 	reload: (el)=>{  
 		return function(){
 				let ts = Date.now()
-				if( this.lastTimeStamp && (ts-this.lastTimeStamp < 1)) return
-				this.lastTimeStamp = ts
+				if( this._lastReload && (ts-this._lastReload < 1)) return
+				this._lastReload = ts
 				
 				this.ready = { 
 					visible:false,
@@ -573,7 +573,7 @@ let scopeTemplate = {
 	isRunning: (el)=>{
 		let now = Date.now()
 		if(!el._lastTimeLoaded) { el._lastTimeLoaded = now
-		} else if(now - el._lastTimeLoaded < 1000) return true
+		} else if(now - el._lastTimeLoaded < 1) return true
 		el._lastTimeLoaded = now
 		return false
 	}
