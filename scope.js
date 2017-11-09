@@ -193,7 +193,7 @@ let scopeTemplate = {
 	reload: (el)=>{  
 		return function(){
 				let ts = Date.now()
-				if( this.lastTimeStamp && (ts-this.lastTimeStamp < 1000)) return
+				if( this.lastTimeStamp && (ts-this.lastTimeStamp < 750)) return
 				this.lastTimeStamp = ts
 				
 				this.ready = { 
