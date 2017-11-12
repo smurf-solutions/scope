@@ -36,7 +36,6 @@ function ajax(url,cb){
 	http.onreadystatechange = function() { 
 		if ( http.readyState == 4 ){ 
 			progressbar.stop()
-			console.log(http.status)
 			switch(http.status){
 				case 200: let j = http.responseText
 					try { j = JSON.parse( j ) 
@@ -133,6 +132,7 @@ let formComponent = {
 				}
 				progressbar.stop()
 			})
+			http.onreadystatechange = function() {if(http.status == 401) window.location.reload() };
 			http.addEventListener("error",alert)
 			http.send(fData)
 		})
@@ -372,7 +372,9 @@ let scopeTemplate = {
 					el.innerHTML = this.responseText; parseInnerHTML()
 					scopeTemplate.render(el)
 					progressbar.stop()
-				}); http.open("GET",el.dataset.templateUrl ); http.send()
+				}); 
+				http.onreadystatechange = function() {if(http.status == 401) window.location.reload() };
+				http.open("GET",el.dataset.templateUrl ); http.send()
 			}  else {
 				parseInnerHTML()
 				scopeTemplate.render(el)
@@ -412,7 +414,9 @@ let scopeTemplate = {
 					progressbar.stop()
 					el.ready['data'] = true
 					scopeTemplate.render(el)
-				}); http.open("GET",el.dataset.url); http.send()
+				}); 
+				http.onreadystatechange = function() {if(http.status == 401) window.location.reload() };
+				http.open("GET",el.dataset.url); http.send()
 			} else{
 				el.ready['data'] = true
 				scopeTemplate.render(el)
@@ -580,7 +584,7 @@ let scopeTemplate = {
 	}
 }
 
-document.body.broadcastEvent = scopeTemplate.broadcastEvent(document.body)
+document.body.broadcastEvent = scopeTemplate.broadcastEvent(document.body,details)
 window.broadcastEvent = function(msg,details){document.body.broadcastEvent(msg,details)}
 
 window.addedEventListeners = {}
