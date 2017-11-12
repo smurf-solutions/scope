@@ -36,6 +36,7 @@ function ajax(url,cb){
 	http.onreadystatechange = function() { 
 		if ( http.readyState == 4 ){ 
 			progressbar.stop()
+			console.log(http.status)
 			switch(http.status){
 				case 200: let j = http.responseText
 					try { j = JSON.parse( j ) 
@@ -46,7 +47,7 @@ function ajax(url,cb){
 						case 'string': broadcastEvent(cb); toast('Success'); break
 					}
 					break;
-				case 401: location.reload(); break
+				case 401: window.location.reload(); break
 				default : alert( http.statusText || "Server error "+http.status ) 
 			}
 		}		
