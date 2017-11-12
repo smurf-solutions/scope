@@ -584,7 +584,7 @@ let scopeTemplate = {
 	}
 }
 
-document.body.broadcastEvent = scopeTemplate.broadcastEvent(document.body,details||'')
+document.body.broadcastEvent = scopeTemplate.broadcastEvent(document.body)
 window.broadcastEvent = function(msg,details){document.body.broadcastEvent(msg,details)}
 
 window.addedEventListeners = {}
