@@ -193,9 +193,9 @@ let scopeTemplate = {
 	},
 	reload: (el)=>{
 		return function(){
-			console.log("reload")
 			let ts = Date.now()
-			if( this._lastReload && (ts-this._lastReload < 1)) return
+			console.log(ts
+			if( this._lastReload && (ts-this._lastReload < 25)) return
 			this._lastReload = ts
 			return this._reload()
 		}
