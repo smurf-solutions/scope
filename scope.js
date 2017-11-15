@@ -28,7 +28,7 @@ function toast( message ){
 	**/
 // ajax( method, url, cb, formData ) {
 function onexpired(){
-	SESSION_EXPIRED = true
+	window.SESSION_EXPIRED = true
 	window.location.reload();
 }
 function ajax(url,cb){
@@ -121,7 +121,7 @@ let formComponent = {
 		
 		element.addEventListener("submit",function(event){
 			event.preventDefault(); event.stopPropagation()
-			if(SESSION_EXPIRED) return;
+			if(window.SESSION_EXPIRED) return;
 			let fData = new FormData(element)
 			let http = new XMLHttpRequest
 			
@@ -377,7 +377,7 @@ let scopeTemplate = {
 			}
 			
 			if(el.dataset.templateUrl){
-				if(SESSION_EXPIRED) return;
+				if(window.SESSION_EXPIRED) return;
 				progressbar.start()				
 				let http = new XMLHttpRequest; http.addEventListener("load",function(e){
 					el.innerHTML = this.responseText; parseInnerHTML()
@@ -404,7 +404,7 @@ let scopeTemplate = {
 			} else el.data = {}
 			
 			if(el.dataset.url){
-				if(SESSION_EXPIRED) return;
+				if(window.SESSION_EXPIRED) return;
 				progressbar.start()
 				el.originalUrl = el.dataset.url
 				el.data = Array.isArray(el.data) ? {} : el.data||{};
