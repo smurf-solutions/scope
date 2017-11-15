@@ -232,6 +232,12 @@ let scopeTemplate = {
 	},
 	show: (el)=>{
 		return function(data){
+			console.log('show',el)
+			return this._show(data)
+		}
+	},
+	_show: (el)=>{
+		return function(data){
 			if(this.nodeName=="DIALOG" && !this.classList.contains("modal")){ 
 				;[].forEach.call(document.querySelectorAll("dialog"),(dlg)=>{ if(dlg.style.display=="block") dlg.hide()}) 
 			}
@@ -267,7 +273,7 @@ let scopeTemplate = {
 			
 			el.reload    = scopeTemplate.reload(el)
 			el.refresh   = scopeTemplate.reload(el)
-			el.show      = scopeTemplate.show(el)
+			el.show      = scopeTemplate._show(el)
 			el.hide      = scopeTemplate.hide(el)
 			el.setData   = scopeTemplate.setData(el)
 			el.broadcastEvent = scopeTemplate.broadcastEvent(el)
