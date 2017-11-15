@@ -191,12 +191,17 @@ let scopeTemplate = {
 			progressbar.stop()
 			return el
 	},
-	reload: (el)=>{  
+	reload: (el)=>{
 		return function(){
-				let ts = Date.now()
-				if( this._lastReload && (ts-this._lastReload < 1)) return
-				this._lastReload = ts
-				
+			console.log("reload")
+			let ts = Date.now()
+			if( this._lastReload && (ts-this._lastReload < 1)) return
+			this._lastReload = ts
+			return this._reload()
+		}
+	},
+	_reload: (el)=>{  
+		return function(){
 				this.ready = { 
 					visible:false,
 					template: true,
@@ -227,16 +232,10 @@ let scopeTemplate = {
 						this.dataset.json = scopeTemplate.safeStringify(data)
 					}
 				}
-				return this.reload()
+				return this._reload()
 		}
 	},
 	show: (el)=>{
-		return function(data){
-			console.log('show',el)
-			return this._show(data)
-		}
-	},
-	_show: (el)=>{
 		return function(data){
 			if(this.nodeName=="DIALOG" && !this.classList.contains("modal")){ 
 				;[].forEach.call(document.querySelectorAll("dialog"),(dlg)=>{ if(dlg.style.display=="block") dlg.hide()}) 
@@ -273,7 +272,7 @@ let scopeTemplate = {
 			
 			el.reload    = scopeTemplate.reload(el)
 			el.refresh   = scopeTemplate.reload(el)
-			el.show      = scopeTemplate._show(el)
+			el.show      = scopeTemplate.show(el)
 			el.hide      = scopeTemplate.hide(el)
 			el.setData   = scopeTemplate.setData(el)
 			el.broadcastEvent = scopeTemplate.broadcastEvent(el)
