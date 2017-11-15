@@ -27,6 +27,9 @@ function toast( message ){
 /** AJAX
 	**/
 // ajax( method, url, cb, formData ) {
+function onexpired(){
+	window.location.reload();
+}
 function ajax(url,cb){
 	let method = "GET"
 	
@@ -46,7 +49,7 @@ function ajax(url,cb){
 						case 'string': broadcastEvent(cb); toast('Success'); break
 					}
 					break;
-				case 401: window.location.reload(); break
+				case 401: onexpired(); break
 				default : alert( http.statusText || "Server error "+http.status ) 
 			}
 		}		
@@ -132,7 +135,7 @@ let formComponent = {
 				}
 				progressbar.stop()
 			})
-			http.onreadystatechange = function() {if(http.status == 401) window.location.reload() };
+			http.onreadystatechange = function() {if(http.status == 401) onexpired() };
 			http.addEventListener("error",alert)
 			http.send(fData)
 		})
@@ -378,7 +381,7 @@ let scopeTemplate = {
 					scopeTemplate.render(el)
 					progressbar.stop()
 				}); 
-				http.onreadystatechange = function() {if(http.status == 401) window.location.reload() };
+				http.onreadystatechange = function() {if(http.status == 401) onexpired() };
 				http.open("GET",el.dataset.templateUrl ); http.send()
 			}  else {
 				parseInnerHTML()
@@ -420,7 +423,7 @@ let scopeTemplate = {
 					el.ready['data'] = true
 					scopeTemplate.render(el)
 				}); 
-				http.onreadystatechange = function() {if(http.status == 401) window.location.reload() };
+				http.onreadystatechange = function() {if(http.status == 401) onexpired() };
 				http.open("GET",el.dataset.url); http.send()
 			} else{
 				el.ready['data'] = true
