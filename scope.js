@@ -272,6 +272,7 @@ let scopeTemplate = {
 			
 			el.reload    = scopeTemplate.reload(el)
 			el.refresh   = scopeTemplate.reload(el)
+			el._reload   = scopeTemplate._reload(el)
 			el.show      = scopeTemplate.show(el)
 			el.hide      = scopeTemplate.hide(el)
 			el.setData   = scopeTemplate.setData(el)
