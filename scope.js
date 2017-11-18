@@ -301,7 +301,7 @@ let scopeTemplate = {
 			if(!el.isVisible) { el.innerHTML = el.dataset.else||""
 			} else scopeTemplate.render(el)
 			
-			if(el.isVisible) try(){
+			if(el.isVisible) try{
 				with(el.parent.data||{}){
 					eval(el.dataset.url?el.dataset.url:'')
 					eval(el.dataset.json?el.dataset.json:'')
