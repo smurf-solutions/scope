@@ -304,7 +304,7 @@ let scopeTemplate = {
 			if(el.isVisible) try{
 				with(el.parent.data||{}){
 					eval(el.dataset.url?el.dataset.url:'')
-					eval("el.data="+el.dataset.json||'""')
+					eval("var data_temp="+el.dataset.json||'""')
 					//eval(el.dataset.json?el.dataset.json:'')
 				}
 			}catch (ev) { el.isVisivle = false }
