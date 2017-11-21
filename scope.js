@@ -288,8 +288,7 @@ let scopeTemplate = {
 			***/
 			if(el.ready.visible) return
 			el.ready['visible'] = true
-			console.log(el.parent.isVisible)
-			el.isVisible = typeof el.parent.isVisible !== 'undefined' ? el.parent.isVisible : true
+			el.isVisible = true
 			
 			if(el.dataset.if){
 				el.isVisible = scopeTemplate.safeEval(el.dataset.if, el.parent.data||{})
@@ -308,7 +307,6 @@ let scopeTemplate = {
 					eval("var data_temp="+el.dataset.json||'""')
 				}
 			}catch (ev) { el.isVisivle = false }*/
-			
 			return el.isVisible
 	},
 	initTemplate: (el)=>{
@@ -467,7 +465,7 @@ let scopeTemplate = {
 		el.ready.rendered = true
 
 		
-		let $data = el.data, $parent = el.parent
+		//let $data = el.data, $parent = el.parent
 		try { eval(scopeTemplate.htmlDecode(el.templateScript)) 
 		}catch(e){console.error("Executing script => ",e.toString(),"\n-- script\n",el.templateScript,"\n-- element",el)}
 	
