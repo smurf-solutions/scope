@@ -288,7 +288,7 @@ let scopeTemplate = {
 			***/
 			if(el.ready.visible) return
 			el.ready['visible'] = true
-			el.isVisible = el.parent.isVisible || true
+			el.isVisible = el.parent.isVisible ? true : false
 			
 			if(el.dataset.if){
 				el.isVisible = scopeTemplate.safeEval(el.dataset.if, el.parent.data||{})
