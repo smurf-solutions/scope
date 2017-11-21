@@ -465,7 +465,7 @@ let scopeTemplate = {
 		el.ready.rendered = true
 
 		
-		let $data = el.data, $parent = el.parent
+		//let $data = el.data, $parent = el.parent
 		try { eval(scopeTemplate.htmlDecode(el.templateScript)) 
 		}catch(e){console.error("Executing script => ",e.toString(),"\n-- script\n",el.templateScript,"\n-- element",el)}
 	
@@ -479,20 +479,20 @@ let scopeTemplate = {
 			}
 			if(Array.isArray(el.data)){
 				if(el.templateEmpty && el.data.length == 0){
-					content += safeEval(el.templateEmpty,{"$parent":el.parent})
+					content += safeEval(el.templateEmpty,{"$parent":el.parent,"$instance":el})
 				} else {
 					if(el.templateFirst){
-						content += safeEval(el.templateFirst,{"$data":el.data,"$parent":el.parent})
+						content += safeEval(el.templateFirst,{"$data":el.data,"$parent":el.parent,"$instance":el})
 					}
 					;[].forEach.call(el.data,($row,$i)=>{
-						content += safeEval( el.template,Object.assign($row,{"$i":$i,"$row":$row,"$parent":el.parent}))
+						content += safeEval( el.template,Object.assign($row,{"$i":$i,"$row":$row,"$parent":el.parent,"$instance":el}))
 					})
 					if(el.templateLast){
-						content += safeEval(el.templateLast,{"$data":el.data,"$parent":el.parent})
+						content += safeEval(el.templateLast,{"$data":el.data,"$parent":el.parent,"$instance":el})
 					}
 				}
 			} else {
-				content += safeEval(el.template, Object.assign(el.data,{"$parent":el.parent}));
+				content += safeEval(el.template, Object.assign(el.data,{"$parent":el.parent,"$instance":el}));
 			}
 		}
 		el.innerHTML = content
