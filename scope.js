@@ -465,7 +465,7 @@ let scopeTemplate = {
 		el.ready.rendered = true
 
 		
-		//let $data = el.data, $parent = el.parent
+		let $data = el.data, $parent = el.parent
 		try { eval(scopeTemplate.htmlDecode(el.templateScript)) 
 		}catch(e){console.error("Executing script => ",e.toString(),"\n-- script\n",el.templateScript,"\n-- element",el)}
 	
