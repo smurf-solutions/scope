@@ -548,7 +548,9 @@ let scopeTemplate = {
 								}catch(e){console.error("Error evaluating the parent script: \n",$functions,"\n-- on event\n",$ev,"\n-- parent\n",el.parent,"\n\n-- called from \n",el)}
 							}
 							try { eval(a.nodeValue.replace(/this/g,"$this") ) 
-							}catch(e){console.error("'"+a.nodeName+"' => ",e.toString(),"\n-- element\n",el,"\n-- parent",$parent)}
+							}catch(e){ if(e.message.substr(-15)!==' is not defined' && e.message.substr(-13)!==' is undefined')
+								console.error("'"+a.nodeName+"' => ",e.toString(),"\n-- element\n",el,"\n-- parent",$parent)
+							}
 						})
 					}
 				}
