@@ -166,8 +166,7 @@ let scopeTemplate = {
 			dialogComponent.parse($parent)
 			formComponent.parse($parent)
 			
-			let passed = []
-			let parents = []
+			let passed = [], parents = []
 			;[].forEach.call( $parent.querySelectorAll(scopeTemplate.selector), (el)=>{
 				if(!el.id) el.id = "scope-"+(new Date).getTime()
 				let isParent = true
@@ -202,9 +201,11 @@ let scopeTemplate = {
 	},
 	reload: (el)=>{
 		return function(){
+			/*
 			let ts = Date.now()
 			if( this._lastReload && (ts-this._lastReload < 40)) return
 			this._lastReload = ts
+			*/
 			return this._reload()
 		}
 	},
@@ -223,9 +224,10 @@ let scopeTemplate = {
 	},
 	setData: (el)=>{
 		return function(data){
+				/*
 				if(scopeTemplate.isRunning(this)) 
 					return this
-					
+				*/
 				if(typeof data == "string"){
 					if(this.originalJson) this.dataset.json = this.originalJson
 					this.dataset.url = data
