@@ -167,12 +167,16 @@ let scopeTemplate = {
 			formComponent.parse($parent)
 			
 			let passed = []
+			let parents = []
 			;[].forEach.call( $parent.querySelectorAll(scopeTemplate.selector), (el)=>{
 				if(!el.id) el.id = "scope-"+(new Date).getTime()
 				let isParent = true
 				;[].forEach.call(passed,(p)=>{ if(p.querySelector("#"+el.id)) isParent = false })
-				if(isParent) scopeTemplate.create( el, $parent )
+				if(isParent) parents.push(el)
 				passed.push(el)
+			})
+			;[].forEach.call(parents,(el)=>{
+				scopeTemplate.create( el, $parent )
 			})
 	},
 	
