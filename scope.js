@@ -158,7 +158,7 @@ let formComponent = {
 		Functions: refresh, reload, setData, show, hide, broadcastEvent
 	**/
 let scopeTemplate = {
-	selector: "[data-template],[__template__]",
+	selector: "[data-scope],[__SCOPE__],[__template__]",
 	
 	// ----- Controllers -----
 	
@@ -377,8 +377,8 @@ let scopeTemplate = {
 				el.ready['template'] = true
 			}
 			
-			if(el.getAttribute('__template__')!=='' && !el.dataset.template){
-				el.dataset.template = el.getAttribute('__template__')
+			if(el.getAttribute('data-scope')!=='' && !el.dataset.template){
+				el.dataset.template = el.getAttribute('data-scope')
 			}
 			
 			if(el.dataset.template && el.dataset.template.length > 0){
