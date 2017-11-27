@@ -158,7 +158,7 @@ let formComponent = {
 		Functions: refresh, reload, setData, show, hide, broadcastEvent
 	**/
 let scopeTemplate = {
-	selector: "[data-__template__],[__template__]",
+	selector: "[data-template],[__template__]",
 	
 	// ----- Controllers -----
 	
