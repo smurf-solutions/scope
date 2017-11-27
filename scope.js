@@ -614,3 +614,11 @@ window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg||e.
 window.addEventListener("success",(e)=>{toast("Success")})
 
 scopeTemplate.parseChildren(document.body)
+
+
+/*** Template Tools ***/
+function eq(a,b){return a==b}
+function lt(a,b){return a<b}
+function gt(a,b){return a>b}
+function lte(a,b){return a<=b}
+function gte(a,b){return a>=b}
