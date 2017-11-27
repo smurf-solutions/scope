@@ -377,6 +377,10 @@ let scopeTemplate = {
 				el.ready['template'] = true
 			}
 			
+			if(el.getAttribute('__TEMPLATE__')!=='' && !el.dataset.template){
+				el.dataset.template = el.getAttribute('__TEMPLATE__')
+			}
+			
 			if(el.dataset.template){
 				if(el.dataset.template.substr(0,1)=="#"){
 					el.template = [el.dataset.template.substr(1)].innerHTML
