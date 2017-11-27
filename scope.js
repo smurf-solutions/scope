@@ -321,6 +321,7 @@ let scopeTemplate = {
 				// sanitize body
 				[].forEach.call(el.querySelectorAll(scopeTemplate.selector),(child)=>{
 					child.innerHTML = child.innerHTML.replace(/\\\$\{/g,"${").replace(/\$\{/g,"\\${")
+						.replace(/'''/g,"''").replace(/"""/g,'""')
 				})
 				
 				// children first level
