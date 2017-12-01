@@ -1,16 +1,22 @@
+/*** v.1 ***/
 /** PROGRESS BAR
 		usage: progress.start(), progress.stop()	
 	**/
-document.body.innerHTML += '<progress id="progress" data-counter="0"></progress>'
-progress.style.cssText = "position:fixed;top:0;left:0;height:6px;width:100%;"
-progress.start = ()=>{ if(++progress.dataset.counter == 1) progress.style.display = "block"}
-progress.stop  = ()=>{ if(--progress.dataset.counter == 0) progress.style.display = "none" }
+let progressbar = document.getElementById("progressbar")
+if(!progressbar) { 
+	document.body.innerHTML += '<progress id="progressbar"></progress>'
+	progressbar = document.getElementById("progressbar")
+}
+progressbar.dataset.counter = 0
+progressbar.style.cssText = "position:fixed;top:0;left:0;height:6px;width:100%;"
+progressbar.start = ()=>{ if(++progressbar.dataset.counter == 1) progressbar.style.display = "block"}
+progressbar.stop  = ()=>{ if(--progressbar.dataset.counter == 0) progressbar.style.display = "none" }
 
 
 /** TOASTS
 	**/
 function toast( message ){
-	var toast = document.createElement("div")
+	let toast = document.createElement("div")
 	toast.setAttribute("class","toast")
 	document.body.appendChild( toast )
 	toast.innerHTML = message
@@ -21,17 +27,21 @@ function toast( message ){
 /** AJAX
 	**/
 // ajax( method, url, cb, formData ) {
+function onexpired(){
+	window.SESSION_EXPIRED = true
+	window.location.reload();
+}
 function ajax(url,cb){
-	var method = "GET"
+	let method = "GET"
 	
-	progress.start()
+	progressbar.start()
 	
-	var http = new XMLHttpRequest()
+	let http = new XMLHttpRequest()
 	http.onreadystatechange = function() { 
 		if ( http.readyState == 4 ){ 
-			progress.stop()
+			progressbar.stop()
 			switch(http.status){
-				case 200: var j = http.responseText
+				case 200: let j = http.responseText
 					try { j = JSON.parse( j ) 
 					} catch ( e ) { console.log(e); alert("JSON error - Server Response") }
 					if( (j && j.errmsg) || (typeof j == "string" && j.length)) alert( j.errmsg ? j.errmsg : j.toString() )
@@ -40,7 +50,7 @@ function ajax(url,cb){
 						case 'string': broadcastEvent(cb); toast('Success'); break
 					}
 					break;
-				case 401: location.reload(); break
+				case 401: onexpired(); break
 				default : alert( http.statusText || "Server error "+http.status ) 
 			}
 		}		
@@ -52,13 +62,13 @@ function ajax(url,cb){
 
 /** DIALOGS
 	**/
-var dialogComponent = {
+let dialogComponent = {
 	selector: "dialog,[dialog]",
 	parse: ($container)=>{
 		[].forEach.call( $container.querySelectorAll(dialogComponent.selector), dialogComponent.create)
 	},
 	appendClose: (el)=>{
-		var closeButton = document.createElement("big")
+		let closeButton = document.createElement("big")
 		closeButton.innerHTML = "&times;"
 		closeButton.setAttribute("onclick",'this.dispatchEvent(new Event("hide",{bubbles:true}))')
 		closeButton.setAttribute( "style",'position:absolute; right:0px;top:0px; padding:0px 8px;cursor:pointer; font-size:1.8em;text-align:center;font-weight:bold; line-height: 28px; width: 28px; height: 28px; border-radius:3px;')
@@ -72,10 +82,10 @@ var dialogComponent = {
 				dialogComponent.appendClose(el)
 				el.show = function(data){
 					el.style.display="block"
-					var autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
-					if(data){ var form = el.querySelector("form"); if(form) form.reset() }
+					let autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
+					if(data){ let form = el.querySelector("form"); if(form) form.reset() }
 					if(typeof data=="object"){ ;[].forEach.call(Object.keys(data),(k)=>{
-						var f = el.querySelector('[name="'+k+'"]'); if(f) f.value = data[k]
+						let f = el.querySelector('[name="'+k+'"]'); if(f) f.value = data[k]
 					}) }
 				}
 				el.hide = function(){ 
@@ -101,7 +111,7 @@ var dialogComponent = {
 
 /** FORMS
 	**/
-var formComponent = {
+let formComponent = {
 	selector: "form[method=ajax]",
 	parse: ($container)=>{
 		[].forEach.call( $container.querySelectorAll(formComponent.selector), formComponent.create)
@@ -111,21 +121,23 @@ var formComponent = {
 		
 		element.addEventListener("submit",function(event){
 			event.preventDefault(); event.stopPropagation()
-			var fData = new FormData(element)
-			var http = new XMLHttpRequest
+			if(window.SESSION_EXPIRED) return;
+			let fData = new FormData(element)
+			let http = new XMLHttpRequest
 			
-			progress.start()
+			progressbar.start()
 			
 			http.open("POST", element.getAttribute("action"))
 			http.addEventListener("load",function(){
-				var ret = JSON.parse(this.responseText)
+				let ret = JSON.parse(this.responseText)
 				if( ret.error ){
 					element.dispatchEvent(new CustomEvent("error",{detail:ret,bubbles:true}))
 				} else {
 					element.dispatchEvent(new CustomEvent("success",{detail:ret,bubbles:true}))
 				}
-				progress.stop()
+				progressbar.stop()
 			})
+			http.onreadystatechange = function() {if(http.status == 401) onexpired() };
 			http.addEventListener("error",alert)
 			http.send(fData)
 		})
@@ -140,13 +152,13 @@ var formComponent = {
 
 
 /** SCOPE TEMPLATES
-		Properties: data-COMPONENT, [data-temaplate, data-url, data-json, data-on*]
+		Properties: __TEMPLATE__, [data-temaplate, data-url, data-json, data-repeat, data-on*]
 		Variables: $data, $parent, [$i, $row] 
 		Service EVENTS: render / data-onrender -> after any element is rendered
 		Functions: refresh, reload, setData, show, hide, broadcastEvent
 	**/
-var scopeTemplate = {
-	selector: "[-COMPONENT],[--TEMPLATE--],[__TEMPLATE__]",
+let scopeTemplate = {
+	selector: "[data-scope],[__scope__],[__template__]",
 	
 	// ----- Controllers -----
 	
@@ -154,13 +166,16 @@ var scopeTemplate = {
 			dialogComponent.parse($parent)
 			formComponent.parse($parent)
 			
-			var passed = []
+			let passed = [], parents = []
 			;[].forEach.call( $parent.querySelectorAll(scopeTemplate.selector), (el)=>{
 				if(!el.id) el.id = "scope-"+(new Date).getTime()
-				var isParent = true
+				let isParent = true
 				;[].forEach.call(passed,(p)=>{ if(p.querySelector("#"+el.id)) isParent = false })
-				if(isParent) scopeTemplate.create( el, $parent )
+				if(isParent) parents.push(el)
 				passed.push(el)
+			})
+			;[].forEach.call(parents,(el)=>{
+				scopeTemplate.create( el, $parent )
 			})
 	},
 	
@@ -176,15 +191,23 @@ var scopeTemplate = {
 			return scopeTemplate.process(el)
 	},
 	process: (el)=>{
-			progress.start()
+			progressbar.start()
 			scopeTemplate.initTemplate(el)
 			if( scopeTemplate.initIf(el) ){
 				scopeTemplate.initData(el)
 			}
-			progress.stop()
+			progressbar.stop()
 			return el
 	},
-	reload: (el)=>{  
+	reload: (el)=>{
+		return function(){
+			let ts = Date.now()
+			if( this._lastReload && (ts-this._lastReload < 40)) return
+			this._lastReload = ts
+			return this._reload()
+		}
+	},
+	_reload: (el)=>{  
 		return function(){
 				this.ready = { 
 					visible:false,
@@ -199,6 +222,8 @@ var scopeTemplate = {
 	},
 	setData: (el)=>{
 		return function(data){
+				if(scopeTemplate.isRunning(this)) 
+					return this
 				if(typeof data == "string"){
 					if(this.originalJson) this.dataset.json = this.originalJson
 					this.dataset.url = data
@@ -213,17 +238,20 @@ var scopeTemplate = {
 						this.dataset.json = scopeTemplate.safeStringify(data)
 					}
 				}
-				return this.reload()
+				return this._reload()
 		}
 	},
 	show: (el)=>{
 		return function(data){
+			if(this.nodeName=="DIALOG" && !this.classList.contains("modal")){ 
+				;[].forEach.call(document.querySelectorAll("dialog"),(dlg)=>{ if(dlg.style.display=="block") dlg.hide()}) 
+			}
 			this.style.display = "block"
 			if(data){ 
-				var form = this.querySelector("form"); if(form) form.reset() 
+				let form = this.querySelector("form"); if(form) form.reset() 
 				return this.setData(data)
 			} else {
-				var af = this.querySelector("[autofocus]"); if(af) af.focus()
+				let af = this.querySelector("[autofocus]"); if(af) af.focus()
 				return this
 			}
 		}
@@ -240,10 +268,9 @@ var scopeTemplate = {
 		}
 	},
 	
+	
 	//----- Inits ------
 	initService: (el,$parent)=>{
-			
-			
 			el.parent  = $parent; 
 			el.parents = ($parent.parents||[]); el.parents.push($parent)
 			
@@ -251,6 +278,7 @@ var scopeTemplate = {
 			
 			el.reload    = scopeTemplate.reload(el)
 			el.refresh   = scopeTemplate.reload(el)
+			el._reload   = scopeTemplate._reload(el)
 			el.show      = scopeTemplate.show(el)
 			el.hide      = scopeTemplate.hide(el)
 			el.setData   = scopeTemplate.setData(el)
@@ -267,14 +295,25 @@ var scopeTemplate = {
 			if(el.dataset.if){
 				el.isVisible = scopeTemplate.safeEval(el.dataset.if, el.parent.data||{})
 			}
+			/*if(el.hasAttribute("hidden") || el.style.display=="none"){
+				el.isVisible = false
+				el.style.display = "none"
+				el.removeAttribute("hidden")
+			}*/
 			if(!el.isVisible) { el.innerHTML = el.dataset.else||""
 			} else scopeTemplate.render(el)
 			
+			/*if(el.isVisible) try{
+				with(el.parent.data||{}){
+					eval(el.dataset.url?el.dataset.url:'')
+					eval("var data_temp="+el.dataset.json||'""')
+				}
+			}catch (ev) { el.isVisivle = false }*/
 			return el.isVisible
 	},
 	initTemplate: (el)=>{
 			/***
-				el.template = data-template, data-template-url, innerHTML
+				el.template = data-template="url", [data-template-url] or innerHTML
 			***/
 			if(el.ready['template']) return
 
@@ -282,13 +321,14 @@ var scopeTemplate = {
 				// sanitize body
 				[].forEach.call(el.querySelectorAll(scopeTemplate.selector),(child)=>{
 					child.innerHTML = child.innerHTML.replace(/\\\$\{/g,"${").replace(/\$\{/g,"\\${")
+						.replace(/'''/g,"''").replace(/"""/g,'""')
 				})
 				
 				// children first level
 				function setStyle(){
-					var node = document.createElement("style")
+					let node = document.createElement("style")
 					el.templateStyle.replace(/[\n\t]/g," ").split("}").forEach( line => {
-						var [k,s] = line.split("{")
+						let [k,s] = line.split("{")
 						if(k && s) node.innerHTML += scopeTemplate.htmlDecode(`#${el.id.replace(/\//g,"\\/")} ${k}{${s}}\n`)
 					})
 					document.head.appendChild(node)
@@ -305,9 +345,9 @@ var scopeTemplate = {
 				el.templateScript = el.dataset.script
 				el.templateStyle = el.dataset.style
 				
-				var children = el.children
-				for(var i=children.length-1; i>-1; i--){
-					var child = children[i]
+				let children = el.children
+				for(let i=children.length-1; i>-1; i--){
+					let child = children[i]
 					switch( child.getAttribute('role') ){
 						case 'empty' : 							    moveTo(child,'templateEmpty');  break;
 						case 'head'  : case 'header': case 'first': moveTo(child,'templateFirst');  break;
@@ -318,7 +358,7 @@ var scopeTemplate = {
 					switch( child.nodeName ){
 						case 'SCRIPT': 
 							if(!document.head.querySelector('script[data-origin="'+el.id+'"]')){
-								var s = document.createElement("script");if(child.src)s.src=child.src;s.dataset.origin=el.id;s.innerHTML=child.innerHTML;
+								let s = document.createElement("script");if(child.src)s.src=child.src;s.dataset.origin=el.id;s.innerHTML=child.innerHTML;
 								if( el.dataset.templateUrl || el.parents.filter((p)=>p.dataset.templateUrl).length ){
 									   document.head.appendChild( s );
 								} else document.head.innerHTML += s.outerHTML
@@ -337,7 +377,8 @@ var scopeTemplate = {
 				el.ready['template'] = true
 			}
 			
-			if(el.dataset.template){
+
+			if(el.dataset.template && el.dataset.template.length > 0){
 				if(el.dataset.template.substr(0,1)=="#"){
 					el.template = [el.dataset.template.substr(1)].innerHTML
 				} else {
@@ -346,12 +387,15 @@ var scopeTemplate = {
 			}
 			
 			if(el.dataset.templateUrl){
-				progress.start()				
-				var http = new XMLHttpRequest; http.addEventListener("load",function(e){
+				if(window.SESSION_EXPIRED) return;
+				progressbar.start()				
+				let http = new XMLHttpRequest; http.addEventListener("load",function(e){
 					el.innerHTML = this.responseText; parseInnerHTML()
 					scopeTemplate.render(el)
-					progress.stop()
-				}); http.open("GET",el.dataset.templateUrl ); http.send()
+					progressbar.stop()
+				}); 
+				http.onreadystatechange = function() {if(http.status == 401) onexpired() };
+				http.open("GET",el.dataset.templateUrl ); http.send()
 			}  else {
 				parseInnerHTML()
 				scopeTemplate.render(el)
@@ -370,12 +414,13 @@ var scopeTemplate = {
 			} else el.data = {}
 			
 			if(el.dataset.url){
-				progress.start()
+				if(window.SESSION_EXPIRED) return;
+				progressbar.start()
 				el.originalUrl = el.dataset.url
 				el.data = Array.isArray(el.data) ? {} : el.data||{};
-				
+				let ret 
 				let http = new XMLHttpRequest; http.addEventListener("load",function(e){
-					try { var ret = JSON.parse(this.responseText)
+					try { ret = JSON.parse(this.responseText)
 					}catch(e){console.error("Parsing 'data-url' => ",e.toString(),"\n\n-- data\n",this.responseText,"\n\n-- element",el); return}
 
 					if(typeof ret =='number' || typeof ret =='string') 
@@ -388,10 +433,12 @@ var scopeTemplate = {
 						  el.data = ret.map(a=>Object.assign(a,el.data))
 					}else el.data = Object.assign( ret||{}, el.data||{} )
 					
-					progress.stop()
+					progressbar.stop()
 					el.ready['data'] = true
 					scopeTemplate.render(el)
-				}); http.open("GET",el.dataset.url); http.send()
+				}); 
+				http.onreadystatechange = function() {if(http.status == 401) onexpired() };
+				http.open("GET",el.dataset.url); http.send()
 			} else{
 				el.ready['data'] = true
 				scopeTemplate.render(el)
@@ -410,7 +457,7 @@ var scopeTemplate = {
 				}catch(e){
 					if(e.message !== lastError 
 						&& (e.message.substr(-15)==' is not defined' || e.message.substr(-13)==' is undefined')
-					){ var $var = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
+					){ let $var = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
 						return safeEval($tpl,Object.assign($data,{[$var]:""}),e.message)
 					}else{console.error("Render template => ",e.toString(),"\n\n-- template\n",$tpl,"\n\n-- data\n",$data,"\n\n-- element",el); return}
 		}	}	}
@@ -422,30 +469,34 @@ var scopeTemplate = {
 		el.ready.rendered = true
 
 		
-		var $data = el.data, $parent = el.parent
+		//let $data = el.data, $parent = el.parent
 		try { eval(scopeTemplate.htmlDecode(el.templateScript)) 
 		}catch(e){console.error("Executing script => ",e.toString(),"\n-- script\n",el.templateScript,"\n-- element",el)}
 	
-		var content = ""
+		let content = ""
 		if(!el.isVisible){
 			content += safeEval(el.dataset.else||"", el.data);
 		} else {
+			if(el.hasAttribute("data-repeat")){
+				let len = parseInt(el.dataset.repeat); el.data = []
+				for(let i=0; i < len; i++) el.data.push(i)
+			}
 			if(Array.isArray(el.data)){
 				if(el.templateEmpty && el.data.length == 0){
-					content += safeEval(el.templateEmpty,{"$parent":el.parent})
+					content += safeEval(el.templateEmpty,{"$parent":el.parent,"$instance":el})
 				} else {
 					if(el.templateFirst){
-						content += safeEval(el.templateFirst,{"$data":el.data,"$parent":el.parent})
+						content += safeEval(el.templateFirst,{"$data":el.data,"$parent":el.parent,"$instance":el})
 					}
-					[].forEach.call(el.data,($row,$i)=>{
-						content += safeEval( el.template,Object.assign($row,{"$i":$i,"$row":$row,"$parent":el.parent}))
+					;[].forEach.call(el.data,($row,$i)=>{
+						content += safeEval( el.template,Object.assign($row,{"$i":$i,"$row":$row,"$parent":el.parent,"$instance":el}))
 					})
 					if(el.templateLast){
-						content += safeEval(el.templateLast,{"$data":el.data,"$parent":el.parent})
+						content += safeEval(el.templateLast,{"$data":el.data,"$parent":el.parent,"$instance":el})
 					}
 				}
 			} else {
-				content += safeEval(el.template, Object.assign(el.data,{"$parent":el.parent}));
+				content += safeEval(el.template, Object.assign(el.data,{"$parent":el.parent,"$instance":el}));
 			}
 		}
 		el.innerHTML = content
@@ -454,7 +505,7 @@ var scopeTemplate = {
 		
 		function childOf(c,p){while((c=c.parentNode)&&c!==p);return !!c}
 		;[].forEach.call(el.querySelectorAll("[data-onrender],[data-on-render]"),(child)=>{
-			var isTemplateChild = false
+			let isTemplateChild = false
 			;[].forEach.call(el.querySelectorAll(scopeTemplate.selector),(par)=>{
 				if(childOf(child,par)) isTemplateChild = true 
 			}) 
@@ -462,7 +513,7 @@ var scopeTemplate = {
 		})
 	
 	
-		var autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
+		let autofocus = el.querySelector("[autofocus]"); if(autofocus) autofocus.focus()
 		scopeTemplate.parseChildren(el)
 	},
 	
@@ -476,9 +527,9 @@ var scopeTemplate = {
 			
 			;[].forEach.call( el.attributes, (a)=>{
 				if(a.nodeName.match(/^data-on/i)){
-					var $ev = a.nodeName.replace(/^data-on[-]?/i,"")
+					let $ev = a.nodeName.replace(/^data-on[-]?/i,"")
 					
-					var id = el.id
+					let id = el.id
 					if(el.id){
 						if(!window.addedEventListeners ) window.addedEventListeners = {}
 						if(!window.addedEventListeners[el.id]) window.addedEventListeners[el.id]=[]
@@ -487,7 +538,7 @@ var scopeTemplate = {
 					if(!el.id || window.addedEventListeners[el.id].indexOf($ev) == -1){
 						if(el.id) window.addedEventListeners[el.id].push($ev)
 						el.addEventListener($ev,event=>{
-							var $this = el, $data = $parent.data, $functions = $parent.templateScript
+							let $this = el, $data = $parent.data, $functions = $parent.templateScript
 							if($functions) {
 								$functions = $functions.replace(/\/\*[\s\S]*?\*\//g, "")
 								$functions = scopeTemplate.htmlDecode($functions.substr($functions.indexOf("function")))
@@ -495,7 +546,9 @@ var scopeTemplate = {
 								}catch(e){console.error("Error evaluating the parent script: \n",$functions,"\n-- on event\n",$ev,"\n-- parent\n",el.parent,"\n\n-- called from \n",el)}
 							}
 							try { eval(a.nodeValue.replace(/this/g,"$this") ) 
-							}catch(e){console.error("'"+a.nodeName+"' => ",e.toString(),"\n-- element\n",el,"\n-- parent",$parent)}
+							}catch(e){ if(e.message.substr(-15)!==' is not defined' && e.message.substr(-13)!==' is undefined')
+								console.error("'"+a.nodeName+"' => ",e.toString(),"\n-- element\n",el,"\n-- parent",$parent)
+							}
 						})
 					}
 				}
@@ -526,7 +579,7 @@ var scopeTemplate = {
 		return !str ? str : str.replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
 	},
 	safeStringify: (obj)=>{
-		var cache = []
+		let cache = []
 		function cyrcularRefRemove(key,value){
 			if (typeof value === 'object' && value !== null)
 				if (cache.indexOf(value) !== -1) return;
@@ -541,10 +594,17 @@ var scopeTemplate = {
 				}catch(e){
 					if(e.message !== $$lastError 
 						&& (e.message.substr(-15)==' is not defined' || e.message.substr(-13)==' is undefined')
-					){ var $var = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
+					){ let $var = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
 						return scopeTemplate.safeEval($tpl,Object.assign($data,{[$var]:""}),e.message)
 					}else{console.error("Render template => ",e.toString(),"\n\n-- template\n",$tpl,"\n\n-- data\n",$data /*,"\n\n-- element",el*/); return}
 			}	}	
+	},
+	isRunning: (el)=>{
+		let now = Date.now()
+		if(!el._lastTimeLoaded) { el._lastTimeLoaded = now
+		} else if(now - el._lastTimeLoaded < 40) return true
+		el._lastTimeLoaded = now
+		return false
 	}
 }
 
@@ -552,7 +612,15 @@ document.body.broadcastEvent = scopeTemplate.broadcastEvent(document.body)
 window.broadcastEvent = function(msg,details){document.body.broadcastEvent(msg,details)}
 
 window.addedEventListeners = {}
-window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg) : console.error(e)})
+window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg||e.detail.error||e.detail) : console.error(e)})
 window.addEventListener("success",(e)=>{toast("Success")})
 
 scopeTemplate.parseChildren(document.body)
+
+
+/*** Template Tools ***/
+function eq(a,b){return a==b}
+function lt(a,b){return a<b}
+function gt(a,b){return a>b}
+function lte(a,b){return a<=b}
+function gte(a,b){return a>=b}
