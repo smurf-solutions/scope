@@ -409,10 +409,20 @@ let scopeTemplate = {
 
 			if(el.dataset.json){
 				el.originalJson = el.dataset.json 
-				with(el.parent.data||{}){
+				
+				if(!Array.isArray(el.parent.data)){				
+					//let $data = {}
+					//;[].forEach.call(Object.keys(el.parent.data), function(row){
+					with(el.parent.data){
+						try{ eval("el.data="+el.dataset.json)
+						}catch(e){ console.error("Parsing 'data-json' => ",e.toString(),"\n\n-- data\n",el.dataset.json,"\n\n-- element",el); return }
+					}
+				} else {
 					try{ eval("el.data="+el.dataset.json)
 					}catch(e){ console.error("Parsing 'data-json' => ",e.toString(),"\n\n-- data\n",el.dataset.json,"\n\n-- element",el); return }
 				}
+				
+				
 			} else el.data = {}
 			
 			if(el.dataset.url){
