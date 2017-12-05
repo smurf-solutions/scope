@@ -418,9 +418,13 @@ let scopeTemplate = {
 						// }catch(e){ console.error("Parsing 'data-json' => ",e.toString(),"\n\n-- data\n",el.dataset.json,"\n\n-- element",el); return }
 					// }
 				// } else {
+					// try{ eval("el.data="+el.dataset.json)
+					// }catch(e){ console.error("Parsing 'data-json' => ",e.toString(),"\n\n-- data\n",el.dataset.json,"\n\n-- element",el); return }
+				//}
+				with(el.parent.data||{}){
 					try{ eval("el.data="+el.dataset.json)
 					}catch(e){ console.error("Parsing 'data-json' => ",e.toString(),"\n\n-- data\n",el.dataset.json,"\n\n-- element",el); return }
-				//}
+				}
 				
 				
 			} else el.data = {}
