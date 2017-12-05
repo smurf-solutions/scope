@@ -409,7 +409,7 @@ let scopeTemplate = {
 
 			if(el.dataset.json){
 				el.originalJson = el.dataset.json 
-				with(el.parent.$data){
+				with(el.parent.data){
 					try{ eval("el.data="+el.dataset.json)
 					}catch(e){ console.error("Parsing 'data-json' => ",e.toString(),"\n\n-- data\n",el.dataset.json,"\n\n-- element",el); return }
 				}
