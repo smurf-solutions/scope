@@ -616,7 +616,10 @@ window.addedEventListeners = {}
 window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg||e.detail.error||e.detail) : console.error(e)})
 window.addEventListener("success",(e)=>{toast("Success")})
 
-scopeTemplate.parseChildren(document.documentElement)
+document.addEventListener("DOMContentLoaded", function(){
+	scopeTemplate.parseChildren(document.documentElement)
+});
+
 
 
 /*** Template Tools ***/
