@@ -611,7 +611,7 @@ let scopeTemplate = {
 
 
 
-document.addEventListener("DOMContentLoaded", function(){
+//document.addEventListener("DOMContentLoaded", function(){
 	document.body.broadcastEvent = scopeTemplate.broadcastEvent(document.body)
 	window.broadcastEvent = function(msg,details){document.body.broadcastEvent(msg,details)}
 
@@ -619,7 +619,7 @@ document.addEventListener("DOMContentLoaded", function(){
 	window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg||e.detail.error||e.detail) : console.error(e)})
 	window.addEventListener("success",(e)=>{toast("Success")})
 	scopeTemplate.parseChildren(document.documentElement)
-});
+//});
 
 
 
