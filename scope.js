@@ -2,16 +2,17 @@
 /** PROGRESS BAR
 		usage: progress.start(), progress.stop()	
 	**/
-let progressbar = document.getElementById("progressbar")
-if(!progressbar) { 
-	document.body.innerHTML += '<progress id="progressbar"></progress>'
-	progressbar = document.getElementById("progressbar")
+function initProgressBar(){
+	let progressbar = document.getElementById("progressbar")
+	if(!progressbar) { 
+		document.body.innerHTML += '<progress id="progressbar"></progress>'
+		progressbar = document.getElementById("progressbar")
+	}
+	progressbar.dataset.counter = 0
+	progressbar.style.cssText = "position:fixed;top:0;left:0;height:6px;width:100%;"
+	progressbar.start = ()=>{ if(++progressbar.dataset.counter == 1) progressbar.style.display = "block"}
+	progressbar.stop  = ()=>{ if(--progressbar.dataset.counter == 0) progressbar.style.display = "none" }
 }
-progressbar.dataset.counter = 0
-progressbar.style.cssText = "position:fixed;top:0;left:0;height:6px;width:100%;"
-progressbar.start = ()=>{ if(++progressbar.dataset.counter == 1) progressbar.style.display = "block"}
-progressbar.stop  = ()=>{ if(--progressbar.dataset.counter == 0) progressbar.style.display = "none" }
-
 
 /** TOASTS
 	**/
@@ -62,7 +63,7 @@ function ajax(url,cb){
 
 /** DIALOGS
 	**/
-let dialogComponent = {
+window['dialogComponent'] = {
 	selector: "dialog,[dialog]",
 	parse: ($container)=>{
 		[].forEach.call( $container.querySelectorAll(dialogComponent.selector), dialogComponent.create)
@@ -111,7 +112,7 @@ let dialogComponent = {
 
 /** FORMS
 	**/
-let formComponent = {
+window['formComponent'] = {
 	selector: "form[method=ajax]",
 	parse: ($container)=>{
 		[].forEach.call( $container.querySelectorAll(formComponent.selector), formComponent.create)
@@ -157,7 +158,7 @@ let formComponent = {
 		Service EVENTS: render / data-onrender -> after any element is rendered
 		Functions: refresh, reload, setData, show, hide, broadcastEvent
 	**/
-let scopeTemplate = {
+window['scopeTemplate'] = {
 	selector: "[data-scope],[__scope__],[__template__]",
 	
 	// ----- Controllers -----
@@ -291,7 +292,7 @@ let scopeTemplate = {
 			***/
 			if(el.ready.visible) return
 			el.ready['visible'] = true
-			el.isVisible = window.getComputedStyle(el).display === 'none'
+			el.isVisible = window.getComputedStyle(el).display !== 'none'
 			
 			if(el.dataset.if){
 				el.isVisible = scopeTemplate.safeEval(el.dataset.if, el.parent.data||{})
@@ -606,6 +607,7 @@ let scopeTemplate = {
 
 
 //document.addEventListener("DOMContentLoaded", function(){
+	initProgressBar()
 	document.body.broadcastEvent = scopeTemplate.broadcastEvent(document.body)
 	window.broadcastEvent = function(msg,details){document.body.broadcastEvent(msg,details)}
 
@@ -614,7 +616,6 @@ let scopeTemplate = {
 	window.addEventListener("success",(e)=>{toast("Success")})
 	scopeTemplate.parseChildren(document.documentElement)
 //});
-
 
 
 /*** Template Tools ***/
