@@ -2,16 +2,17 @@
 /** PROGRESS BAR
 		usage: progress.start(), progress.stop()	
 	**/
-let progressbar = document.getElementById("progressbar")
-if(!progressbar) { 
-	document.body.innerHTML += '<progress id="progressbar"></progress>'
-	progressbar = document.getElementById("progressbar")
+function initProgressBar(){
+	let progressbar = document.getElementById("progressbar")
+	if(!progressbar) { 
+		document.body.innerHTML += '<progress id="progressbar"></progress>'
+		progressbar = document.getElementById("progressbar")
+	}
+	progressbar.dataset.counter = 0
+	progressbar.style.cssText = "position:fixed;top:0;left:0;height:6px;width:100%;"
+	progressbar.start = ()=>{ if(++progressbar.dataset.counter == 1) progressbar.style.display = "block"}
+	progressbar.stop  = ()=>{ if(--progressbar.dataset.counter == 0) progressbar.style.display = "none" }
 }
-progressbar.dataset.counter = 0
-progressbar.style.cssText = "position:fixed;top:0;left:0;height:6px;width:100%;"
-progressbar.start = ()=>{ if(++progressbar.dataset.counter == 1) progressbar.style.display = "block"}
-progressbar.stop  = ()=>{ if(--progressbar.dataset.counter == 0) progressbar.style.display = "none" }
-
 
 /** TOASTS
 	**/
@@ -62,7 +63,7 @@ function ajax(url,cb){
 
 /** DIALOGS
 	**/
-let dialogComponent = {
+window['dialogComponent'] = {
 	selector: "dialog,[dialog]",
 	parse: ($container)=>{
 		[].forEach.call( $container.querySelectorAll(dialogComponent.selector), dialogComponent.create)
@@ -111,7 +112,7 @@ let dialogComponent = {
 
 /** FORMS
 	**/
-let formComponent = {
+window['formComponent'] = {
 	selector: "form[method=ajax]",
 	parse: ($container)=>{
 		[].forEach.call( $container.querySelectorAll(formComponent.selector), formComponent.create)
@@ -157,7 +158,7 @@ let formComponent = {
 		Service EVENTS: render / data-onrender -> after any element is rendered
 		Functions: refresh, reload, setData, show, hide, broadcastEvent
 	**/
-let scopeTemplate = {
+window['scopeTemplate'] = {
 	selector: "[data-scope],[__scope__],[__template__]",
 	
 	// ----- Controllers -----
@@ -232,7 +233,6 @@ let scopeTemplate = {
 						if(this.originalJson) this.dataset.json = this.originalJson
 						with(data){
 							this.dataset.url = eval('`'+this.originalUrl+'`')
-							console.log(this.originalUrl)
 						}
 					} else {
 						this.dataset.json = scopeTemplate.safeStringify(data)
@@ -246,7 +246,9 @@ let scopeTemplate = {
 			if(this.nodeName=="DIALOG" && !this.classList.contains("modal")){ 
 				;[].forEach.call(document.querySelectorAll("dialog"),(dlg)=>{ if(dlg.style.display=="block") dlg.hide()}) 
 			}
-			this.style.display = "block"
+			this.style.display = "block"; //this.removeAttribute("hidden")
+			if(!el.ready.data) return this._reload()
+			
 			if(data){ 
 				let form = this.querySelector("form"); if(form) form.reset() 
 				return this.setData(data)
@@ -290,25 +292,15 @@ let scopeTemplate = {
 			***/
 			if(el.ready.visible) return
 			el.ready['visible'] = true
-			el.isVisible = true
+			el.isVisible = window.getComputedStyle(el).display !== 'none'
 			
 			if(el.dataset.if){
 				el.isVisible = scopeTemplate.safeEval(el.dataset.if, el.parent.data||{})
 			}
-			/*if(el.hasAttribute("hidden") || el.style.display=="none"){
-				el.isVisible = false
-				el.style.display = "none"
-				el.removeAttribute("hidden")
-			}*/
+			
 			if(!el.isVisible) { el.innerHTML = el.dataset.else||""
 			} else scopeTemplate.render(el)
 			
-			/*if(el.isVisible) try{
-				with(el.parent.data||{}){
-					eval(el.dataset.url?el.dataset.url:'')
-					eval("var data_temp="+el.dataset.json||'""')
-				}
-			}catch (ev) { el.isVisivle = false }*/
 			return el.isVisible
 	},
 	initTemplate: (el)=>{
@@ -573,6 +565,9 @@ let scopeTemplate = {
 	},
 	
 	// --- Tools
+	/* isVisible: (el)=>{
+		return window.getComputedStyle(el).display === 'none'
+	}, */
 	isTemplate: (el)=>{
 		return el.hasAttribute('__TEMPlATE__')
 	},
@@ -609,14 +604,18 @@ let scopeTemplate = {
 	}
 }
 
-document.body.broadcastEvent = scopeTemplate.broadcastEvent(document.body)
-window.broadcastEvent = function(msg,details){document.body.broadcastEvent(msg,details)}
 
-window.addedEventListeners = {}
-window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg||e.detail.error||e.detail) : console.error(e)})
-window.addEventListener("success",(e)=>{toast("Success")})
 
-scopeTemplate.parseChildren(document.documentElement)
+//document.addEventListener("DOMContentLoaded", function(){
+	initProgressBar()
+	document.body.broadcastEvent = scopeTemplate.broadcastEvent(document.body)
+	window.broadcastEvent = function(msg,details){document.body.broadcastEvent(msg,details)}
+
+	window.addedEventListeners = {}
+	window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg||e.detail.error||e.detail) : console.error(e)})
+	window.addEventListener("success",(e)=>{toast("Success")})
+	scopeTemplate.parseChildren(document.documentElement)
+//});
 
 
 /*** Template Tools ***/
