@@ -247,7 +247,7 @@ window['scopeTemplate'] = {
 				;[].forEach.call(document.querySelectorAll("dialog"),(dlg)=>{ if(dlg.style.display=="block") dlg.hide()}) 
 			}
 			this.style.display = "block"; //this.removeAttribute("hidden")
-			if(!el.ready.data) return this._reload()
+			//if(!el.ready.data) return this._reload()
 			
 			if(data){ 
 				let form = this.querySelector("form"); if(form) form.reset() 
