@@ -232,7 +232,6 @@ let scopeTemplate = {
 						if(this.originalJson) this.dataset.json = this.originalJson
 						with(data){
 							this.dataset.url = eval('`'+this.originalUrl+'`')
-							console.log(this.originalUrl)
 						}
 					} else {
 						this.dataset.json = scopeTemplate.safeStringify(data)
@@ -246,7 +245,9 @@ let scopeTemplate = {
 			if(this.nodeName=="DIALOG" && !this.classList.contains("modal")){ 
 				;[].forEach.call(document.querySelectorAll("dialog"),(dlg)=>{ if(dlg.style.display=="block") dlg.hide()}) 
 			}
-			this.style.display = "block"
+			this.style.display = "block"; //this.removeAttribute("hidden")
+			if(!el.ready.data) return this._reload()
+			
 			if(data){ 
 				let form = this.querySelector("form"); if(form) form.reset() 
 				return this.setData(data)
@@ -290,25 +291,15 @@ let scopeTemplate = {
 			***/
 			if(el.ready.visible) return
 			el.ready['visible'] = true
-			el.isVisible = true
+			el.isVisible = window.getComputedStyle(el).display === 'none'
 			
 			if(el.dataset.if){
 				el.isVisible = scopeTemplate.safeEval(el.dataset.if, el.parent.data||{})
 			}
-			/*if(el.hasAttribute("hidden") || el.style.display=="none"){
-				el.isVisible = false
-				el.style.display = "none"
-				el.removeAttribute("hidden")
-			}*/
+			
 			if(!el.isVisible) { el.innerHTML = el.dataset.else||""
 			} else scopeTemplate.render(el)
 			
-			/*if(el.isVisible) try{
-				with(el.parent.data||{}){
-					eval(el.dataset.url?el.dataset.url:'')
-					eval("var data_temp="+el.dataset.json||'""')
-				}
-			}catch (ev) { el.isVisivle = false }*/
 			return el.isVisible
 	},
 	initTemplate: (el)=>{
@@ -573,6 +564,9 @@ let scopeTemplate = {
 	},
 	
 	// --- Tools
+	/* isVisible: (el)=>{
+		return window.getComputedStyle(el).display === 'none'
+	}, */
 	isTemplate: (el)=>{
 		return el.hasAttribute('__TEMPlATE__')
 	},
