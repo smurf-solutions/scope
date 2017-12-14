@@ -248,7 +248,7 @@ window['scopeTemplate'] = {
 			}
 			this.style.display = "block"; //this.removeAttribute("hidden")
 			
-			if(data){ 
+			if(data || !el.ready.data || !el.ready.render){ 
 				let form = this.querySelector("form"); if(form) form.reset() 
 				return this.setData(data)
 			} else {
