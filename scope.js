@@ -248,12 +248,16 @@ window['scopeTemplate'] = {
 			}
 			this.style.display = "block"; //this.removeAttribute("hidden")
 			
-			if(data || !el.ready.data || !el.ready.render){ 
+			if(data || !el.ready.data){ 
 				let form = this.querySelector("form"); if(form) form.reset() 
 				return this.setData(data)
 			} else {
-				let af = this.querySelector("[autofocus]"); if(af) af.focus()
-				return this
+				if(!el.ready.render){
+					return scopeTemplate.render(el)
+				} else {
+					let af = this.querySelector("[autofocus]"); if(af) af.focus()
+					return this
+				}
 			}
 		}
 	},
