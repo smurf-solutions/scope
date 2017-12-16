@@ -247,14 +247,17 @@ window['scopeTemplate'] = {
 				;[].forEach.call(document.querySelectorAll("dialog"),(dlg)=>{ if(dlg.style.display=="block") dlg.hide()}) 
 			}
 			this.style.display = "block"; //this.removeAttribute("hidden")
-			//if(!el.ready.data) return this._reload()
 			
-			if(data){ 
+			if(data || !el.ready.data){ 
 				let form = this.querySelector("form"); if(form) form.reset() 
 				return this.setData(data)
 			} else {
-				let af = this.querySelector("[autofocus]"); if(af) af.focus()
-				return this
+				if(!el.ready.render){
+					return scopeTemplate.render(el)
+				} else {
+					let af = this.querySelector("[autofocus]"); if(af) af.focus()
+					return this
+				}
 			}
 		}
 	},
@@ -614,7 +617,7 @@ window['scopeTemplate'] = {
 	window.addedEventListeners = {}
 	window.addEventListener("error",(e)=>{e.detail ? alert(e.detail.error.errmsg||e.detail.error||e.detail) : console.error(e)})
 	window.addEventListener("success",(e)=>{toast("Success")})
-	scopeTemplate.parseChildren(document.documentElement)
+	scopeTemplate.parseChildren(document.body) //document.documentElement)
 //});
 
 
