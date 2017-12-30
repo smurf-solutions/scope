@@ -627,3 +627,11 @@ function lt(a,b){return a<b}
 function gt(a,b){return a>b}
 function lte(a,b){return a<=b}
 function gte(a,b){return a>=b}
+HTMLElement.prototype.serialize = function(){
+    var ret = [];
+	var elements = this.querySelectorAll( "input, select, textarea" );
+    for( var i = 0; i < elements.length; ++i ) {
+        if( elements[i].name ) ret.push( elements[i].name+"="+ elements[i].value )
+    }
+    return ret.join("&");
+}
