@@ -1,18 +1,34 @@
 /*** v.1 ***/
-/** PROGRESS BAR
-		usage: progress.start(), progress.stop()	
-	**/
-function initProgressBar(){
-	let progressbar = document.getElementById("progressbar")
-	if(!progressbar) { 
-		document.body.innerHTML += '<progress id="progressbar"></progress>'
-		progressbar = document.getElementById("progressbar")
-	}
-	progressbar.dataset.counter = 0
-	progressbar.style.cssText = "position:fixed;top:0;left:0;height:6px;width:100%;"
-	progressbar.start = ()=>{ if(++progressbar.dataset.counter == 1) progressbar.style.display = "block"}
-	progressbar.stop  = ()=>{ if(--progressbar.dataset.counter == 0) progressbar.style.display = "none" }
+
+/*** Template Tools 
+		....
+	***/
+function eq(a,b){return a==b}
+function lt(a,b){return a<b}
+function gt(a,b){return a>b}
+function lte(a,b){return a<=b}
+function gte(a,b){return a>=b}
+
+HTMLElement.prototype.serialize = function(){
+    var ret = [];
+	var elements = this.querySelectorAll( "input, select, textarea" );
+    for( var i = 0; i < elements.length; ++i ) {
+        if( elements[i].name ) ret.push( elements[i].name+"="+ elements[i].value )
+    }
+    return ret.join("&");
 }
+HTMLElement.prototype.changeValue = function(selector, val){
+	var el = this.querySelector(selector)
+	el.value = val
+	el.dispatchEvent(new Event('change',{bubbles:true,detail:val}));
+}
+HTMLElement.prototype.broadcastEvent = function(message,detail){
+	;[].forEach.call(this.querySelectorAll("[data-on"+message+"],[data-on-"+message+"]"), (child)=>{
+		child.dispatchEvent(new CustomEvent(message,{detail:detail}))
+	});
+}
+
+
 
 /** TOASTS
 	**/
@@ -58,6 +74,22 @@ function ajax(url,cb){
 	}
 	try { http.open( method, url, true ); http.send( null )
 	} catch ( e ) { alert( e ); throw e }
+}
+
+
+/** PROGRESS BAR
+		usage: progress.start(), progress.stop()	
+	**/
+function initProgressBar(){
+	let progressbar = document.getElementById("progressbar")
+	if(!progressbar) { 
+		document.body.innerHTML += '<progress id="progressbar"></progress>'
+		progressbar = document.getElementById("progressbar")
+	}
+	progressbar.dataset.counter = 0
+	progressbar.style.cssText = "position:fixed;top:0;left:0;height:6px;width:100%;"
+	progressbar.start = ()=>{ if(++progressbar.dataset.counter == 1) progressbar.style.display = "block"}
+	progressbar.stop  = ()=>{ if(--progressbar.dataset.counter == 0) progressbar.style.display = "none" }
 }
 
 
@@ -273,7 +305,6 @@ window['scopeTemplate'] = {
 		}
 	},
 	
-	
 	//----- Inits ------
 	initService: (el,$parent)=>{
 			el.parent  = $parent; 
@@ -287,7 +318,7 @@ window['scopeTemplate'] = {
 			el.show      = scopeTemplate.show(el)
 			el.hide      = scopeTemplate.hide(el)
 			el.setData   = scopeTemplate.setData(el)
-			el.broadcastEvent = scopeTemplate.broadcastEvent(el)
+			//el.broadcastEvent = scopeTemplate.broadcastEvent(el)
 	},
 	initIf: (el)=>{
 			/*** 
@@ -455,6 +486,8 @@ window['scopeTemplate'] = {
 						&& (e.message.substr(-15)==' is not defined' || e.message.substr(-13)==' is undefined')
 					){ let $var = e.message.split(" ")[0].replace(/(^\')|(\'$)/g,'')
 						return safeEval($tpl,Object.assign($data,{[$var]:""}),e.message)
+					}else if(e.message.substr(-18)==' is not a function'){
+						//
 					}else{console.error("Render template => ",e.toString(),"\n\n-- template\n",$tpl,"\n\n-- data\n",$data,"\n\n-- element",el); return}
 		}	}	}
 		
@@ -621,17 +654,4 @@ window['scopeTemplate'] = {
 //});
 
 
-/*** Template Tools ***/
-function eq(a,b){return a==b}
-function lt(a,b){return a<b}
-function gt(a,b){return a>b}
-function lte(a,b){return a<=b}
-function gte(a,b){return a>=b}
-HTMLElement.prototype.serialize = function(){
-    var ret = [];
-	var elements = this.querySelectorAll( "input, select, textarea" );
-    for( var i = 0; i < elements.length; ++i ) {
-        if( elements[i].name ) ret.push( elements[i].name+"="+ elements[i].value )
-    }
-    return ret.join("&");
-}
+
